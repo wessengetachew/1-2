@@ -1825,6 +1825,14 @@
             if (latticeData) generateVisualization();
         };
         
+        colorSchemeSelect.onchange = () => {
+            if (latticeData) generateVisualization();
+        };
+        
+        pointSizeSlider.onchange = () => {
+            if (latticeData) generateVisualization();
+        };
+        
         document.getElementById('angularSectors').onchange = () => {
             if (latticeData) plotAngularDistribution();
         };
@@ -2118,6 +2126,9 @@
             baseCanvas.width = canvas.width;
             baseCanvas.height = canvas.height;
             baseCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            
+            // Apply zoom/labels immediately after base canvas is saved
+            redrawWithZoomAndLabels();
         } catch (error) {
             console.error('Error generating visualization:', error);
             loading.style.display = 'none';
@@ -2154,10 +2165,13 @@
             // Add mathematical overlays AFTER restoring context
             drawMathematicalOverlays();
             
-            // Add labels if enabled
+            // Add labels if enabled (must be after overlays)
             if (showLabelsCheck.checked) {
                 addLabels(zoom, panXPct, panYPct);
             }
+            
+            // Update zoom stat display
+            document.getElementById('zoomStat').textContent = zoom.toFixed(1) + 'x';
         }
         
         function drawMathematicalOverlays() {
@@ -3952,8 +3966,15 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 document.getElementById('presetSelect').appendChild(option);
             });
             
+            // Initialize label controls
+            labelTypeSelect.disabled = !showLabelsCheck.checked;
+            labelStyleSelect.disabled = !showLabelsCheck.checked;
+            labelThresholdSlider.disabled = !showLabelsCheck.checked;
+            labelFontSizeSlider.disabled = !showLabelsCheck.checked;
+            labelCoprimeOnlyCheck.disabled = !showLabelsCheck.checked;
+            
             setTimeout(generateVisualization, 500);
         };
     </script>
 </body>
-                    </html>
+    </html>
