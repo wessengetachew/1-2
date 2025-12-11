@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -162,6 +162,24 @@
             margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .export-icon {
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            transition: all 0.3s;
+        }
+        
+        .export-icon:hover {
+            background: #3a3a3a;
+            border-color: #4fc3f7;
         }
         
         .point-inspector {
@@ -794,6 +812,79 @@
                 </div>
                 
                 <div class="control-group">
+                    <h3>Mathematical Overlays</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showDiagonals">
+                        <label>Show Diagonals (y=x, y=-x)</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showCustomLine">
+                        <label>Show Custom Line y=mx</label>
+                    </div>
+                    
+                    <label>Slope m</label>
+                    <input type="number" id="customSlope" value="2" step="0.1" disabled>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showHyperbola">
+                        <label>Show Hyperbola xy=k</label>
+                    </div>
+                    
+                    <label>Constant k</label>
+                    <input type="number" id="hyperbolaK" value="100" step="10" disabled>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="highlightModular">
+                        <label>Highlight Modular Classes</label>
+                    </div>
+                    
+                    <label>Modulus</label>
+                    <select id="modulus" disabled>
+                        <option value="2">mod 2</option>
+                        <option value="3">mod 3</option>
+                        <option value="4">mod 4</option>
+                        <option value="5">mod 5</option>
+                        <option value="6">mod 6</option>
+                    </select>
+                    
+                    <label>Residue Class (a mod m)</label>
+                    <input type="number" id="residueA" value="0" min="0" disabled>
+                    
+                    <label>Residue Class (b mod m)</label>
+                    <input type="number" id="residueB" value="0" min="0" disabled>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Advanced Analysis</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showFarey">
+                        <label>Show Farey Sequence F_n</label>
+                    </div>
+                    
+                    <label>Farey Order n</label>
+                    <input type="number" id="fareyOrder" value="5" min="1" max="50" step="1" disabled>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="primeFilter">
+                        <label>Prime Filter (a or b prime)</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showRadialDensity">
+                        <label>Show Radial Density Plot</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showAngularDist">
+                        <label>Show Angular Distribution</label>
+                    </div>
+                    
+                    <label>Angular Sectors</label>
+                    <input type="number" id="angularSectors" value="12" min="4" max="36" step="4" disabled>
+                </div>
+                
+                <div class="control-group">
                     <h3>Labels</h3>
                     <div class="checkbox-group">
                         <input type="checkbox" id="showLabels">
@@ -824,10 +915,12 @@
                     <div class="range-value" id="zoomLevelValue">1.0x</div>
                     
                     <label>Center X (offset)</label>
+                    <input type="text" id="panXInput" value="0" placeholder="0 or fraction like 1/2">
                     <input type="range" id="panX" min="-100" max="100" value="0" step="1">
                     <div class="range-value" id="panXValue">0%</div>
                     
                     <label>Center Y (offset)</label>
+                    <input type="text" id="panYInput" value="0" placeholder="0 or fraction like -1/3">
                     <input type="range" id="panY" min="-100" max="100" value="0" step="1">
                     <div class="range-value" id="panYValue">0%</div>
                     
@@ -861,6 +954,29 @@
                         <button class="secondary" id="exportCSV">CSV</button>
                     </div>
                     <button class="secondary" id="exportStats">Export Statistics (JSON)</button>
+                    <button class="secondary" id="exportHTML">Export Interactive HTML</button>
+                    <button class="secondary" id="copyStats">Copy Stats to Clipboard</button>
+                    
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
+                        <label>Batch Export (Multiple Radii)</label>
+                        <input type="text" id="batchRadii" placeholder="20,40,60,80" style="margin-bottom: 8px;">
+                        <button class="secondary" id="batchExport">Batch Export PNGs</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Presets</h3>
+                    <select id="presetSelect" style="margin-bottom: 8px;">
+                        <option value="">-- Select Preset --</option>
+                        <option value="prime-focus">Prime Focus (Filter + Diagonals)</option>
+                        <option value="rh-analysis">RH Analysis (Circle + Plots)</option>
+                        <option value="farey-explorer">Farey Explorer (F_10 + Lines)</option>
+                        <option value="modular-patterns">Modular Patterns (mod 3)</option>
+                        <option value="high-res">High Resolution (1000×1000, 8K)</option>
+                        <option value="minimal">Minimal (Clean, No Overlays)</option>
+                    </select>
+                    <button class="secondary" id="applyPreset">Apply Preset</button>
+                    <button class="secondary" id="savePreset">Save Current as Preset</button>
                 </div>
                 
                 <div class="formula-box">
@@ -879,6 +995,22 @@
         </div>
         
         <div class="stats-grid">
+            <div class="stat-card" id="radialDensityCard" style="display: none;">
+                <h3>
+                    Radial Density Plot
+                    <span class="export-icon" onclick="exportChart('radialCanvas', 'radial_density')" title="Export Chart">💾</span>
+                </h3>
+                <canvas id="radialCanvas" width="600" height="300" style="width: 100%; height: auto; border: 1px solid #444; border-radius: 4px;"></canvas>
+            </div>
+            
+            <div class="stat-card" id="angularDistCard" style="display: none;">
+                <h3>
+                    Angular Distribution
+                    <span class="export-icon" onclick="exportChart('angularCanvas', 'angular_distribution')" title="Export Chart">💾</span>
+                </h3>
+                <canvas id="angularCanvas" width="600" height="300" style="width: 100%; height: auto; border: 1px solid #444; border-radius: 4px;"></canvas>
+            </div>
+            
             <div class="stat-card">
                 <h3>Global Statistics</h3>
                 <div id="globalStats">
@@ -1121,6 +1253,31 @@
             return factors.length % 2 === 0 ? 1 : -1;
         }
         
+        // Check if number is prime
+        function isPrime(n) {
+            if (n < 2) return false;
+            if (n === 2) return true;
+            if (n % 2 === 0) return false;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return false;
+            }
+            return true;
+        }
+        
+        // Generate Farey sequence of order n
+        function generateFarey(n) {
+            const farey = [];
+            for (let b = 1; b <= n; b++) {
+                for (let a = 0; a <= b; a++) {
+                    if (gcd(a, b) === 1) {
+                        farey.push({num: a, den: b, value: a / b});
+                    }
+                }
+            }
+            farey.sort((x, y) => x.value - y.value);
+            return farey;
+        }
+        
         // Color schemes
         const colorSchemes = {
             classic: (isCoprime, gcdVal) => isCoprime ? '#70ff70' : '#4060b0',
@@ -1147,6 +1304,15 @@
         let currentN = 0;
         let currentPixelsPerUnit = 0;
         let baseCanvas = null; // Store the base visualization without zoom/labels
+        let userPresets = {}; // Store user-defined presets
+        
+        // Load presets from localStorage
+        try {
+            const saved = localStorage.getItem('coprimePresets');
+            if (saved) userPresets = JSON.parse(saved);
+        } catch (e) {
+            console.log('Could not load saved presets');
+        }
         
         // UI Elements
         const canvas = document.getElementById('canvas');
@@ -1175,8 +1341,10 @@
         const zoomLevelSlider = document.getElementById('zoomLevel');
         const zoomLevelValue = document.getElementById('zoomLevelValue');
         const panXSlider = document.getElementById('panX');
+        const panXInput = document.getElementById('panXInput');
         const panXValue = document.getElementById('panXValue');
         const panYSlider = document.getElementById('panY');
+        const panYInput = document.getElementById('panYInput');
         const panYValue = document.getElementById('panYValue');
         
         // Sync input and slider
@@ -1192,6 +1360,65 @@
         };
         pointSizeSlider.oninput = () => pointSizeValue.textContent = pointSizeSlider.value;
         circleRadiusSlider.oninput = () => circleRadiusValue.textContent = circleRadiusSlider.value + '%';
+        
+        
+        // Parse fraction input like "1/2" or "-3/4" and return percentage
+        function parseFractionToPercent(input) {
+            input = input.trim();
+            
+            // Handle empty or just "0"
+            if (input === '' || input === '0') return 0;
+            
+            // Handle plain numbers
+            if (!input.includes('/')) {
+                const num = parseFloat(input);
+                return isNaN(num) ? 0 : Math.max(-100, Math.min(100, num));
+            }
+            
+            // Parse fraction
+            const parts = input.split('/');
+            if (parts.length !== 2) return 0;
+            
+            const numerator = parseFloat(parts[0].trim());
+            const denominator = parseFloat(parts[1].trim());
+            
+            if (isNaN(numerator) || isNaN(denominator) || denominator === 0) {
+                return 0;
+            }
+            
+            const percent = (numerator / denominator) * 100;
+            return Math.max(-100, Math.min(100, percent));
+        }
+        
+        // Update pan inputs
+        panXInput.addEventListener('input', () => {
+            const percent = parseFractionToPercent(panXInput.value);
+            panXSlider.value = percent;
+            panXValue.textContent = percent.toFixed(1) + '%';
+            if (baseCanvas) redrawWithZoomAndLabels();
+        });
+        
+        panYInput.addEventListener('input', () => {
+            const percent = parseFractionToPercent(panYInput.value);
+            panYSlider.value = percent;
+            panYValue.textContent = percent.toFixed(1) + '%';
+            if (baseCanvas) redrawWithZoomAndLabels();
+        });
+        
+        // Sync slider to input
+        panXSlider.addEventListener('input', () => {
+            const val = parseFloat(panXSlider.value);
+            panXValue.textContent = val + '%';
+            panXInput.value = val;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        });
+        
+        panYSlider.addEventListener('input', () => {
+            const val = parseFloat(panYSlider.value);
+            panYValue.textContent = val + '%';
+            panYInput.value = val;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        });
         
         labelThresholdSlider.oninput = () => {
             labelThresholdValue.textContent = labelThresholdSlider.value;
@@ -1217,6 +1444,86 @@
         
         showCircleCheck.onchange = () => {
             circleRadiusSlider.disabled = !showCircleCheck.checked;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('showCustomLine').onchange = (e) => {
+            document.getElementById('customSlope').disabled = !e.target.checked;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('showHyperbola').onchange = (e) => {
+            document.getElementById('hyperbolaK').disabled = !e.target.checked;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('highlightModular').onchange = (e) => {
+            const enabled = e.target.checked;
+            document.getElementById('modulus').disabled = !enabled;
+            document.getElementById('residueA').disabled = !enabled;
+            document.getElementById('residueB').disabled = !enabled;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('modulus').onchange = () => {
+            const m = parseInt(document.getElementById('modulus').value);
+            document.getElementById('residueA').max = m - 1;
+            document.getElementById('residueB').max = m - 1;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('showFarey').onchange = (e) => {
+            document.getElementById('fareyOrder').disabled = !e.target.checked;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('showRadialDensity').onchange = (e) => {
+            document.getElementById('radialDensityCard').style.display = e.target.checked ? 'block' : 'none';
+            if (e.target.checked && latticeData) plotRadialDensity();
+        };
+        
+        document.getElementById('showAngularDist').onchange = (e) => {
+            const enabled = e.target.checked;
+            document.getElementById('angularSectors').disabled = !enabled;
+            document.getElementById('angularDistCard').style.display = enabled ? 'block' : 'none';
+            if (enabled && latticeData) plotAngularDistribution();
+        };
+        
+        // Redraw when overlay parameters change
+        document.getElementById('customSlope').onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('hyperbolaK').onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('residueA').onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('residueB').onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('fareyOrder').onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('showDiagonals').onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('primeFilter').onchange = () => {
+            if (latticeData) generateVisualization();
+        };
+        
+        document.getElementById('angularSectors').onchange = () => {
+            if (latticeData) plotAngularDistribution();
+        };
+        
+        circleRadiusSlider.onchange = () => {
+            if (latticeData) generateVisualization();
         };
         
         showLabelsCheck.onchange = () => {
@@ -1235,6 +1542,8 @@
             zoomLevelSlider.value = 1;
             panXSlider.value = 0;
             panYSlider.value = 0;
+            panXInput.value = '0';
+            panYInput.value = '0';
             zoomLevelValue.textContent = '1.0x';
             panXValue.textContent = '0%';
             panYValue.textContent = '0%';
@@ -1265,6 +1574,7 @@
             const showAxes = document.getElementById('showAxes').checked;
             const showGrid = document.getElementById('showGrid').checked;
             const analyzeDisc = document.getElementById('analyzeDisc').checked;
+            const primeFilter = document.getElementById('primeFilter').checked;
             
             // Setup canvas
             canvas.width = resolution;
@@ -1287,6 +1597,7 @@
             let mobiusSum = 0;
             let mobiusOverN = 0;
             let mobiusOverN2 = 0;
+            let totalPointsGenerated = 0; // Track actual points generated
             
             const R = N * circleRadiusPct / 2;
             let discTotal = 0;
@@ -1299,6 +1610,13 @@
                 for (let b = 0; b < N; b++) {
                     const gcdVal = gcd(a, b);
                     const isCoprime = gcdVal === 1;
+                    
+                    // Apply prime filter if enabled
+                    if (primeFilter && !isPrime(a) && !isPrime(b)) {
+                        continue; // Skip if neither a nor b is prime
+                    }
+                    
+                    totalPointsGenerated++; // Count actual points
                     
                     const pointData = {a, b, gcd: gcdVal, coprime: isCoprime};
                     latticeData.push(pointData);
@@ -1405,8 +1723,8 @@
             const endTime = performance.now();
             const genTime = ((endTime - startTime) / 1000).toFixed(2);
             
-            // Calculate statistics
-            const totalPoints = N * N;
+            // Calculate statistics using actual points generated
+            const totalPoints = totalPointsGenerated;
             const coprimeDensity = coprimeCount / totalPoints;
             const theoretical = 6 / (Math.PI * Math.PI);
             const relativeError = ((coprimeDensity - theoretical) / theoretical * 100).toFixed(3);
@@ -1439,6 +1757,14 @@
             };
             
             updateStatistics();
+            
+            // Generate plots if enabled
+            if (document.getElementById('showRadialDensity').checked) {
+                plotRadialDensity();
+            }
+            if (document.getElementById('showAngularDist').checked) {
+                plotAngularDistribution();
+            }
             
             loading.style.display = 'none';
             progressBar.style.display = 'none';
@@ -1474,9 +1800,391 @@
             
             ctx.restore();
             
+            // Add mathematical overlays AFTER restoring context
+            drawMathematicalOverlays();
+            
             // Add labels if enabled
             if (showLabelsCheck.checked) {
                 addLabels(zoom, panXPct, panYPct);
+            }
+        }
+        
+        function drawMathematicalOverlays() {
+            const zoom = parseFloat(zoomLevelSlider.value);
+            const panXPct = parseFloat(panXSlider.value) / 100;
+            const panYPct = parseFloat(panYSlider.value) / 100;
+            
+            ctx.save();
+            
+            // Apply same zoom and pan transformations
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(zoom, zoom);
+            ctx.translate(-canvas.width / 2 - (panXPct * canvas.width), -canvas.height / 2 - (panYPct * canvas.height));
+            
+            // Draw diagonals
+            if (document.getElementById('showDiagonals').checked) {
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 2 / zoom;
+                ctx.setLineDash([10 / zoom, 5 / zoom]);
+                
+                // y = x diagonal
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+                ctx.lineTo(canvas.width, 0);
+                ctx.stroke();
+                
+                // y = -x diagonal (mirrored)
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.stroke();
+                
+                ctx.setLineDash([]);
+            }
+            
+            // Draw custom line y = mx
+            if (document.getElementById('showCustomLine').checked) {
+                const m = parseFloat(document.getElementById('customSlope').value);
+                ctx.strokeStyle = '#ff00ff';
+                ctx.lineWidth = 2 / zoom;
+                ctx.setLineDash([10 / zoom, 5 / zoom]);
+                
+                ctx.beginPath();
+                // Line from origin through the grid
+                const x1 = 0;
+                const y1 = canvas.height;
+                const x2 = canvas.width;
+                const y2 = canvas.height - (m * currentN * currentPixelsPerUnit);
+                
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                
+                ctx.setLineDash([]);
+                
+                // Label
+                ctx.fillStyle = '#ff00ff';
+                ctx.font = `${16 / zoom}px Arial`;
+                ctx.fillText(`y=${m}x`, x2 - 80 / zoom, y2 - 10 / zoom);
+            }
+            
+            // Draw hyperbola xy = k
+            if (document.getElementById('showHyperbola').checked) {
+                const k = parseFloat(document.getElementById('hyperbolaK').value);
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 2 / zoom;
+                ctx.setLineDash([5 / zoom, 5 / zoom]);
+                
+                ctx.beginPath();
+                let firstPoint = true;
+                for (let a = 1; a < currentN; a += 0.5) {
+                    const b = k / a;
+                    if (b > 0 && b < currentN) {
+                        const x = a * currentPixelsPerUnit;
+                        const y = (currentN - b) * currentPixelsPerUnit;
+                        
+                        if (firstPoint) {
+                            ctx.moveTo(x, y);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                }
+                ctx.stroke();
+                
+                ctx.setLineDash([]);
+                
+                // Label
+                ctx.fillStyle = '#00ffff';
+                ctx.font = `${16 / zoom}px Arial`;
+                const labelX = Math.min(currentN / 2, Math.sqrt(k));
+                const labelB = k / labelX;
+                if (labelB < currentN) {
+                    const x = labelX * currentPixelsPerUnit;
+                    const y = (currentN - labelB) * currentPixelsPerUnit;
+                    ctx.fillText(`xy=${k}`, x + 10 / zoom, y - 10 / zoom);
+                }
+            }
+            
+            // Draw Farey sequence
+            if (document.getElementById('showFarey').checked) {
+                const fareyN = parseInt(document.getElementById('fareyOrder').value);
+                const fareySeq = generateFarey(fareyN);
+                
+                ctx.strokeStyle = '#ffa500';
+                ctx.lineWidth = 1.5 / zoom;
+                
+                fareySeq.forEach(frac => {
+                    if (frac.den <= currentN && frac.num <= currentN) {
+                        const x = frac.num * currentPixelsPerUnit;
+                        const y = (currentN - frac.den) * currentPixelsPerUnit;
+                        
+                        // Draw small circle at Farey point
+                        ctx.beginPath();
+                        ctx.arc(x, y, 4 / zoom, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        
+                        // Draw line from origin to point
+                        ctx.beginPath();
+                        ctx.moveTo(0, canvas.height);
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                    }
+                });
+            }
+            
+            // Highlight modular classes
+            if (document.getElementById('highlightModular').checked) {
+                const m = parseInt(document.getElementById('modulus').value);
+                const resA = parseInt(document.getElementById('residueA').value);
+                const resB = parseInt(document.getElementById('residueB').value);
+                
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+                
+                for (let a = 0; a < currentN; a++) {
+                    for (let b = 0; b < currentN; b++) {
+                        if (a % m === resA && b % m === resB) {
+                            const x = a * currentPixelsPerUnit;
+                            const y = (currentN - b - 1) * currentPixelsPerUnit;
+                            ctx.fillRect(x, y, currentPixelsPerUnit, currentPixelsPerUnit);
+                        }
+                    }
+                }
+            }
+            
+            ctx.restore();
+        }
+        
+        function plotRadialDensity() {
+            if (!latticeData || latticeData.length === 0) return;
+            
+            const canvas = document.getElementById('radialCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Calculate density at different radii
+            const centerX = currentN / 2;
+            const centerY = currentN / 2;
+            const maxR = Math.sqrt(centerX * centerX + centerY * centerY);
+            const numBins = 50;
+            const binSize = maxR / numBins;
+            
+            const bins = Array(numBins).fill(0).map(() => ({total: 0, coprime: 0}));
+            
+            latticeData.forEach(point => {
+                const dx = point.a - centerX;
+                const dy = point.b - centerY;
+                const r = Math.sqrt(dx * dx + dy * dy);
+                const binIdx = Math.min(Math.floor(r / binSize), numBins - 1);
+                
+                bins[binIdx].total++;
+                if (point.coprime) bins[binIdx].coprime++;
+            });
+            
+            // Calculate densities
+            const densities = bins.map(bin => bin.total > 0 ? bin.coprime / bin.total : 0);
+            const theoretical = 6 / (Math.PI * Math.PI);
+            
+            // Draw axes
+            const margin = 40;
+            const plotWidth = width - 2 * margin;
+            const plotHeight = height - 2 * margin;
+            
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+            
+            // Draw theoretical line
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            const theoreticalY = height - margin - (theoretical * plotHeight);
+            ctx.beginPath();
+            ctx.moveTo(margin, theoreticalY);
+            ctx.lineTo(width - margin, theoreticalY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw density curve
+            ctx.strokeStyle = '#4fc3f7';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            densities.forEach((density, i) => {
+                const x = margin + (i / numBins) * plotWidth;
+                const y = height - margin - (density * plotHeight);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#e0e0e0';
+            ctx.font = '12px Arial';
+            ctx.fillText('Radius R', width / 2 - 30, height - 10);
+            
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Coprime Density', 0, 0);
+            ctx.restore();
+            
+            // Legend
+            ctx.fillStyle = '#4fc3f7';
+            ctx.fillRect(width - 150, 20, 20, 3);
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillText('Observed', width - 125, 25);
+            
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(width - 150, 35, 20, 3);
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillText('6/π² ≈ 0.608', width - 125, 40);
+            
+            // Y-axis values
+            ctx.fillStyle = '#e0e0e0';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const val = (i / 5).toFixed(2);
+                const y = height - margin - (i / 5) * plotHeight;
+                ctx.fillText(val, margin - 5, y + 4);
+            }
+            
+            // X-axis values
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const val = Math.round((i / 5) * maxR);
+                const x = margin + (i / 5) * plotWidth;
+                ctx.fillText(val, x, height - margin + 15);
+            }
+        }
+        
+        function plotAngularDistribution() {
+            if (!latticeData || latticeData.length === 0) return;
+            
+            const canvas = document.getElementById('angularCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
+            
+            const numSectors = parseInt(document.getElementById('angularSectors').value);
+            const sectorSize = 360 / numSectors;
+            
+            const sectors = Array(numSectors).fill(0).map(() => ({total: 0, coprime: 0}));
+            
+            // Count points in each angular sector
+            const centerX = currentN / 2;
+            const centerY = currentN / 2;
+            
+            latticeData.forEach(point => {
+                const dx = point.a - centerX;
+                const dy = point.b - centerY;
+                
+                if (dx === 0 && dy === 0) return;
+                
+                let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                if (angle < 0) angle += 360;
+                
+                const sectorIdx = Math.floor(angle / sectorSize) % numSectors;
+                
+                sectors[sectorIdx].total++;
+                if (point.coprime) sectors[sectorIdx].coprime++;
+            });
+            
+            // Calculate densities
+            const densities = sectors.map(s => s.total > 0 ? s.coprime / s.total : 0);
+            const theoretical = 6 / (Math.PI * Math.PI);
+            
+            // Draw bar chart
+            const margin = 40;
+            const plotWidth = width - 2 * margin;
+            const plotHeight = height - 2 * margin;
+            const barWidth = plotWidth / numSectors;
+            
+            // Draw axes
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+            
+            // Draw theoretical line
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            const theoreticalY = height - margin - (theoretical * plotHeight);
+            ctx.beginPath();
+            ctx.moveTo(margin, theoreticalY);
+            ctx.lineTo(width - margin, theoreticalY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw bars
+            densities.forEach((density, i) => {
+                const x = margin + i * barWidth;
+                const barHeight = density * plotHeight;
+                const y = height - margin - barHeight;
+                
+                ctx.fillStyle = '#4fc3f7';
+                ctx.fillRect(x + 1, y, barWidth - 2, barHeight);
+            });
+            
+            // Labels
+            ctx.fillStyle = '#e0e0e0';
+            ctx.font = '12px Arial';
+            ctx.fillText('Angle (degrees)', width / 2 - 40, height - 10);
+            
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Coprime Density', 0, 0);
+            ctx.restore();
+            
+            // Legend
+            ctx.fillStyle = '#4fc3f7';
+            ctx.fillRect(width - 150, 20, 20, 10);
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillText('Observed', width - 125, 28);
+            
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(width - 150, 35, 20, 3);
+            ctx.fillText('6/π² ≈ 0.608', width - 125, 40);
+            
+            // Y-axis values
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const val = (i / 5).toFixed(2);
+                const y = height - margin - (i / 5) * plotHeight;
+                ctx.fillText(val, margin - 5, y + 4);
+            }
+            
+            // X-axis values (angle labels)
+            ctx.textAlign = 'center';
+            for (let i = 0; i < Math.min(numSectors, 8); i++) {
+                const angle = Math.round((i / numSectors) * 360);
+                const x = margin + (i / numSectors) * plotWidth;
+                ctx.fillText(angle + '°', x, height - margin + 15);
             }
         }
         
@@ -1791,18 +2499,29 @@
             const exportCanvas = document.createElement('canvas');
             const exportCtx = exportCanvas.getContext('2d');
             
-            // Set dimensions (visualization + legend area)
+            // Calculate dimensions
             const vizSize = canvas.width;
             const legendWidth = 800;
+            const hasRadialPlot = document.getElementById('showRadialDensity').checked;
+            const hasAngularPlot = document.getElementById('showAngularDist').checked;
+            
+            let extraHeight = 0;
+            if (hasRadialPlot) extraHeight += 320;
+            if (hasAngularPlot) extraHeight += 320;
+            
             exportCanvas.width = vizSize + legendWidth;
-            exportCanvas.height = vizSize;
+            exportCanvas.height = Math.max(vizSize, 1200 + extraHeight);
+            
+            // Fill background
+            exportCtx.fillStyle = '#0a0a0a';
+            exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
             
             // Draw the visualization
             exportCtx.drawImage(canvas, 0, 0);
             
             // Draw legend background
             exportCtx.fillStyle = '#1a1a1a';
-            exportCtx.fillRect(vizSize, 0, legendWidth, vizSize);
+            exportCtx.fillRect(vizSize, 0, legendWidth, exportCanvas.height);
             
             // Draw legend content
             exportCtx.fillStyle = '#e0e0e0';
@@ -1841,32 +2560,34 @@
             
             yPos += sectionGap;
             
-            // Disc Analysis
-            exportCtx.fillStyle = '#4fc3f7';
-            exportCtx.font = 'bold 18px Arial';
-            exportCtx.fillText('DISC ANALYSIS (RADIUS R)', vizSize + 20, yPos);
-            yPos += 30;
-            
-            exportCtx.font = '15px Arial';
-            const discStats = [
-                ['Radius R:', currentStats.R.toFixed(2)],
-                ['Points in Disc:', currentStats.discTotal.toLocaleString()],
-                ['Coprime in Disc V(R):', currentStats.discCoprime.toLocaleString()],
-                ['Expected (6/π²)πR²:', currentStats.discExpected.toFixed(2)],
-                ['Error E(R):', currentStats.discError.toFixed(2)],
-                ['|E(R)|/R^(1/2):', currentStats.errorRatio.toFixed(4)],
-                ['log₁₀|E(R)|:', Math.log10(Math.abs(currentStats.discError)).toFixed(4)]
-            ];
-            
-            discStats.forEach(([label, value]) => {
-                exportCtx.fillStyle = '#b0b0b0';
-                exportCtx.fillText(label, vizSize + 20, yPos);
+            // Disc Analysis (if enabled)
+            if (document.getElementById('showCircle').checked) {
                 exportCtx.fillStyle = '#4fc3f7';
-                exportCtx.fillText(value, vizSize + 400, yPos);
-                yPos += lineHeight;
-            });
-            
-            yPos += sectionGap;
+                exportCtx.font = 'bold 18px Arial';
+                exportCtx.fillText('DISC ANALYSIS (RADIUS R)', vizSize + 20, yPos);
+                yPos += 30;
+                
+                exportCtx.font = '15px Arial';
+                const discStats = [
+                    ['Radius R:', currentStats.R.toFixed(2)],
+                    ['Points in Disc:', currentStats.discTotal.toLocaleString()],
+                    ['Coprime in Disc V(R):', currentStats.discCoprime.toLocaleString()],
+                    ['Expected (6/π²)πR²:', currentStats.discExpected.toFixed(2)],
+                    ['Error E(R):', currentStats.discError.toFixed(2)],
+                    ['|E(R)|/R^(1/2):', currentStats.errorRatio.toFixed(4)],
+                    ['log₁₀|E(R)|:', Math.log10(Math.abs(currentStats.discError)).toFixed(4)]
+                ];
+                
+                discStats.forEach(([label, value]) => {
+                    exportCtx.fillStyle = '#b0b0b0';
+                    exportCtx.fillText(label, vizSize + 20, yPos);
+                    exportCtx.fillStyle = '#4fc3f7';
+                    exportCtx.fillText(value, vizSize + 400, yPos);
+                    yPos += lineHeight;
+                });
+                
+                yPos += sectionGap;
+            }
             
             // Möbius Analysis
             exportCtx.fillStyle = '#4fc3f7';
@@ -1907,7 +2628,8 @@
                 ['Point Size:', currentStats.pointSize + 'px'],
                 ['Generation Time:', currentStats.genTime + 's'],
                 ['Memory (approx):', ((currentStats.totalPoints * 16) / (1024 * 1024)).toFixed(2) + ' MB'],
-                ['Color Scheme:', currentStats.colorScheme]
+                ['Color Scheme:', currentStats.colorScheme],
+                ['Prime Filter:', document.getElementById('primeFilter').checked ? 'Enabled' : 'Disabled']
             ];
             
             computeStats.forEach(([label, value]) => {
@@ -1917,6 +2639,31 @@
                 exportCtx.fillText(value, vizSize + 400, yPos);
                 yPos += lineHeight;
             });
+            
+            yPos += sectionGap;
+            
+            // Add analysis plots if they exist
+            if (hasRadialPlot) {
+                exportCtx.fillStyle = '#4fc3f7';
+                exportCtx.font = 'bold 18px Arial';
+                exportCtx.fillText('RADIAL DENSITY PLOT', vizSize + 20, yPos);
+                yPos += 30;
+                
+                const radialCanvas = document.getElementById('radialCanvas');
+                exportCtx.drawImage(radialCanvas, vizSize + 20, yPos, 760, 280);
+                yPos += 300;
+            }
+            
+            if (hasAngularPlot) {
+                exportCtx.fillStyle = '#4fc3f7';
+                exportCtx.font = 'bold 18px Arial';
+                exportCtx.fillText('ANGULAR DISTRIBUTION', vizSize + 20, yPos);
+                yPos += 30;
+                
+                const angularCanvas = document.getElementById('angularCanvas');
+                exportCtx.drawImage(angularCanvas, vizSize + 20, yPos, 760, 280);
+                yPos += 300;
+            }
             
             // Export
             const link = document.createElement('a');
@@ -1971,10 +2718,326 @@
             link.click();
         };
         
+        document.getElementById('copyStats').onclick = () => {
+            const statsText = `
+Coprime Lattice Analysis - ${currentStats.N}×${currentStats.N}
+
+GLOBAL STATISTICS:
+- Total Points: ${currentStats.totalPoints.toLocaleString()}
+- Coprime Points: ${currentStats.coprimeCount.toLocaleString()}
+- Coprime Density: ${currentStats.coprimeDensity.toFixed(6)}
+- Theoretical (6/π²): 0.607927
+- Relative Error: ${currentStats.relativeError}%
+
+DISC ANALYSIS (R=${currentStats.R.toFixed(2)}):
+- Points in Disc: ${currentStats.discTotal.toLocaleString()}
+- Coprime in Disc V(R): ${currentStats.discCoprime.toLocaleString()}
+- Expected (6/π²)πR²: ${currentStats.discExpected.toFixed(2)}
+- Error E(R): ${currentStats.discError.toFixed(2)}
+- |E(R)|/R^(1/2): ${currentStats.errorRatio.toFixed(4)}
+
+MÖBIUS FUNCTION:
+- M(N) = Σμ(n): ${currentStats.mobiusSum}
+- |M(N)|/N^(1/2): ${(Math.abs(currentStats.mobiusSum) / Math.sqrt(currentStats.N)).toFixed(4)}
+- Σμ(n)/n²: ${currentStats.mobiusOverN2.toFixed(6)}
+            `.trim();
+            
+            navigator.clipboard.writeText(statsText).then(() => {
+                alert('Statistics copied to clipboard!');
+            });
+        };
+        
+        document.getElementById('exportHTML').onclick = () => {
+            // Create a standalone HTML file with the current visualization
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coprime Lattice - ${currentStats.N}×${currentStats.N}</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #0a0a0a; color: #e0e0e0; font-family: Arial, sans-serif; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #4fc3f7; text-align: center; }
+        img { max-width: 100%; border: 1px solid #444; border-radius: 8px; }
+        .stats { background: #1a1a1a; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2a2a; }
+        .stat-label { color: #b0b0b0; }
+        .stat-value { color: #4fc3f7; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Coprime Lattice Visualization</h1>
+        <p style="text-align: center; color: #90caf9;">Grid Size: ${currentStats.N}×${currentStats.N} | Generated: ${new Date().toLocaleString()}</p>
+        <img src="${canvas.toDataURL()}" alt="Coprime Lattice">
+        <div class="stats">
+            <h2 style="color: #4fc3f7;">Statistics</h2>
+            <div class="stat-row"><span class="stat-label">Total Points:</span><span class="stat-value">${currentStats.totalPoints.toLocaleString()}</span></div>
+            <div class="stat-row"><span class="stat-label">Coprime Points:</span><span class="stat-value">${currentStats.coprimeCount.toLocaleString()}</span></div>
+            <div class="stat-row"><span class="stat-label">Coprime Density:</span><span class="stat-value">${currentStats.coprimeDensity.toFixed(6)}</span></div>
+            <div class="stat-row"><span class="stat-label">Theoretical (6/π²):</span><span class="stat-value">0.607927</span></div>
+            <div class="stat-row"><span class="stat-label">Relative Error:</span><span class="stat-value">${currentStats.relativeError}%</span></div>
+        </div>
+    </div>
+</body>
+</html>`;
+            
+            const blob = new Blob([htmlContent], {type: 'text/html'});
+            const link = document.createElement('a');
+            link.download = `coprime_lattice_${currentStats.N}x${currentStats.N}_${Date.now()}.html`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        };
+        
+        document.getElementById('batchExport').onclick = async () => {
+            const radiiInput = document.getElementById('batchRadii').value;
+            if (!radiiInput.trim()) {
+                alert('Please enter comma-separated radii values (e.g., 20,40,60,80)');
+                return;
+            }
+            
+            const radii = radiiInput.split(',').map(r => parseFloat(r.trim())).filter(r => !isNaN(r) && r > 0);
+            if (radii.length === 0) {
+                alert('No valid radii values found');
+                return;
+            }
+            
+            if (!confirm(`Export ${radii.length} visualizations with radii: ${radii.join(', ')}?`)) {
+                return;
+            }
+            
+            const originalRadius = circleRadiusSlider.value;
+            const originalShowCircle = showCircleCheck.checked;
+            
+            showCircleCheck.checked = true;
+            
+            for (let i = 0; i < radii.length; i++) {
+                const r = radii[i];
+                circleRadiusSlider.value = r;
+                circleRadiusValue.textContent = r + '%';
+                
+                await generateVisualization();
+                
+                // Small delay to ensure rendering completes
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Export PNG
+                const link = document.createElement('a');
+                link.download = `coprime_lattice_R${r}_${currentStats.N}x${currentStats.N}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Small delay between exports
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            // Restore original settings
+            circleRadiusSlider.value = originalRadius;
+            showCircleCheck.checked = originalShowCircle;
+            circleRadiusValue.textContent = originalRadius + '%';
+            
+            await generateVisualization();
+            
+            alert(`Batch export complete! ${radii.length} images exported.`);
+        };
+        
+        // Export individual chart
+        window.exportChart = (canvasId, name) => {
+            const chartCanvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = `${name}_${currentStats.N}x${currentStats.N}_${Date.now()}.png`;
+            link.href = chartCanvas.toDataURL('image/png');
+            link.click();
+        };
+        
+        // Preset management
+        const presets = {
+            'prime-focus': {
+                primeFilter: true,
+                showDiagonals: true,
+                showAxes: true,
+                showGrid: false,
+                colorScheme: 'classic',
+                showRadialDensity: true,
+                showAngularDist: false
+            },
+            'rh-analysis': {
+                showCircle: true,
+                circleRadius: 40,
+                analyzeDisc: true,
+                showRadialDensity: true,
+                showAngularDist: true,
+                showDensity: true,
+                angularSectors: 12,
+                showAxes: true
+            },
+            'farey-explorer': {
+                showFarey: true,
+                fareyOrder: 10,
+                showDiagonals: true,
+                showAxes: true,
+                colorScheme: 'monochrome',
+                showGrid: true
+            },
+            'modular-patterns': {
+                highlightModular: true,
+                modulus: 3,
+                residueA: 0,
+                residueB: 0,
+                showGrid: true,
+                colorScheme: 'rainbow'
+            },
+            'high-res': {
+                gridSize: 1000,
+                resolution: 7680,
+                pointSize: 2,
+                showAxes: true,
+                colorScheme: 'classic'
+            },
+            'minimal': {
+                showAxes: false,
+                showGrid: false,
+                showCircle: false,
+                showRadialDensity: false,
+                showAngularDist: false,
+                colorScheme: 'monochrome'
+            }
+        };
+        
+        document.getElementById('applyPreset').onclick = () => {
+            const presetName = document.getElementById('presetSelect').value;
+            if (!presetName) {
+                alert('Please select a preset');
+                return;
+            }
+            
+            const preset = presets[presetName] || userPresets[presetName];
+            if (!preset) {
+                alert('Preset not found');
+                return;
+            }
+            
+            // Apply preset settings
+            if (preset.gridSize !== undefined) {
+                gridSizeSlider.value = preset.gridSize;
+                gridSizeInput.value = preset.gridSize;
+                gridSizeValue.textContent = preset.gridSize;
+            }
+            if (preset.resolution !== undefined) resolutionSelect.value = preset.resolution;
+            if (preset.pointSize !== undefined) {
+                pointSizeSlider.value = preset.pointSize;
+                pointSizeValue.textContent = preset.pointSize;
+            }
+            if (preset.colorScheme !== undefined) colorSchemeSelect.value = preset.colorScheme;
+            
+            if (preset.showAxes !== undefined) document.getElementById('showAxes').checked = preset.showAxes;
+            if (preset.showGrid !== undefined) document.getElementById('showGrid').checked = preset.showGrid;
+            if (preset.showCircle !== undefined) {
+                showCircleCheck.checked = preset.showCircle;
+                circleRadiusSlider.disabled = !preset.showCircle;
+            }
+            if (preset.circleRadius !== undefined) {
+                circleRadiusSlider.value = preset.circleRadius;
+                circleRadiusValue.textContent = preset.circleRadius + '%';
+            }
+            
+            if (preset.showDiagonals !== undefined) document.getElementById('showDiagonals').checked = preset.showDiagonals;
+            if (preset.showFarey !== undefined) {
+                document.getElementById('showFarey').checked = preset.showFarey;
+                document.getElementById('fareyOrder').disabled = !preset.showFarey;
+            }
+            if (preset.fareyOrder !== undefined) document.getElementById('fareyOrder').value = preset.fareyOrder;
+            
+            if (preset.highlightModular !== undefined) {
+                document.getElementById('highlightModular').checked = preset.highlightModular;
+                const enabled = preset.highlightModular;
+                document.getElementById('modulus').disabled = !enabled;
+                document.getElementById('residueA').disabled = !enabled;
+                document.getElementById('residueB').disabled = !enabled;
+            }
+            if (preset.modulus !== undefined) document.getElementById('modulus').value = preset.modulus;
+            if (preset.residueA !== undefined) document.getElementById('residueA').value = preset.residueA;
+            if (preset.residueB !== undefined) document.getElementById('residueB').value = preset.residueB;
+            
+            if (preset.primeFilter !== undefined) document.getElementById('primeFilter').checked = preset.primeFilter;
+            if (preset.analyzeDisc !== undefined) document.getElementById('analyzeDisc').checked = preset.analyzeDisc;
+            if (preset.showDensity !== undefined) document.getElementById('showDensity').checked = preset.showDensity;
+            
+            if (preset.showRadialDensity !== undefined) {
+                document.getElementById('showRadialDensity').checked = preset.showRadialDensity;
+                document.getElementById('radialDensityCard').style.display = preset.showRadialDensity ? 'block' : 'none';
+            }
+            if (preset.showAngularDist !== undefined) {
+                document.getElementById('showAngularDist').checked = preset.showAngularDist;
+                document.getElementById('angularSectors').disabled = !preset.showAngularDist;
+                document.getElementById('angularDistCard').style.display = preset.showAngularDist ? 'block' : 'none';
+            }
+            if (preset.angularSectors !== undefined) document.getElementById('angularSectors').value = preset.angularSectors;
+            
+            // Regenerate visualization
+            setTimeout(() => generateVisualization(), 100);
+        };
+        
+        document.getElementById('savePreset').onclick = () => {
+            const name = prompt('Enter a name for this preset:');
+            if (!name) return;
+            
+            // Capture current settings
+            const currentPreset = {
+                gridSize: parseInt(gridSizeSlider.value),
+                resolution: parseInt(resolutionSelect.value),
+                pointSize: parseInt(pointSizeSlider.value),
+                colorScheme: colorSchemeSelect.value,
+                showAxes: document.getElementById('showAxes').checked,
+                showGrid: document.getElementById('showGrid').checked,
+                showCircle: showCircleCheck.checked,
+                circleRadius: parseInt(circleRadiusSlider.value),
+                showDiagonals: document.getElementById('showDiagonals').checked,
+                showFarey: document.getElementById('showFarey').checked,
+                fareyOrder: parseInt(document.getElementById('fareyOrder').value),
+                highlightModular: document.getElementById('highlightModular').checked,
+                modulus: parseInt(document.getElementById('modulus').value),
+                residueA: parseInt(document.getElementById('residueA').value),
+                residueB: parseInt(document.getElementById('residueB').value),
+                primeFilter: document.getElementById('primeFilter').checked,
+                analyzeDisc: document.getElementById('analyzeDisc').checked,
+                showDensity: document.getElementById('showDensity').checked,
+                showRadialDensity: document.getElementById('showRadialDensity').checked,
+                showAngularDist: document.getElementById('showAngularDist').checked,
+                angularSectors: parseInt(document.getElementById('angularSectors').value)
+            };
+            
+            userPresets[name] = currentPreset;
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem('coprimePresets', JSON.stringify(userPresets));
+                
+                // Add to dropdown
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name + ' (Custom)';
+                document.getElementById('presetSelect').appendChild(option);
+                
+                alert(`Preset "${name}" saved successfully!`);
+            } catch (e) {
+                alert('Could not save preset. Storage may be full.');
+            }
+        };
+        
         // Initial generation
         window.onload = () => {
+            // Load user presets into dropdown
+            Object.keys(userPresets).forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name + ' (Custom)';
+                document.getElementById('presetSelect').appendChild(option);
+            });
+            
             setTimeout(generateVisualization, 500);
         };
     </script>
 </body>
-    </html>
+</html>
