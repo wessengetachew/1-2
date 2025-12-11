@@ -982,6 +982,44 @@
             </div>
             
             <div class="stat-card">
+                <h3>Prime Counting Function</h3>
+                <div id="primeStats">
+                    <div class="stat-row">
+                        <span class="stat-label">π(N) - Primes ≤ N:</span>
+                        <span class="stat-value" id="primeCount">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">N / ln(N):</span>
+                        <span class="stat-value" id="primeApprox">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">π(N) / (N/ln(N)):</span>
+                        <span class="stat-value" id="primeRatio">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Li(N) Approximation:</span>
+                        <span class="stat-value" id="primeLogInt">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">π(N) - Li(N):</span>
+                        <span class="stat-value" id="primeError">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Largest Prime ≤ N:</span>
+                        <span class="stat-value" id="largestPrime">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Prime Density:</span>
+                        <span class="stat-value" id="primeDensity">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Σ 1/p (primes ≤ N):</span>
+                        <span class="stat-value" id="primeRecipSum">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
                 <h3>Computational Details</h3>
                 <div id="computeStats">
                     <div class="stat-row">
@@ -1527,6 +1565,56 @@
             return factors.length % 2 === 0 ? 1 : -1;
         }
         
+        // Prime checking function
+        function isPrimeCheck(n) {
+            if (n < 2) return false;
+            if (n === 2) return true;
+            if (n % 2 === 0) return false;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return false;
+            }
+            return true;
+        }
+        
+        // Sieve of Eratosthenes for efficient prime counting
+        function sieveOfEratosthenes(n) {
+            if (n < 2) return [];
+            const isPrime = new Array(n + 1).fill(true);
+            isPrime[0] = isPrime[1] = false;
+            
+            for (let i = 2; i * i <= n; i++) {
+                if (isPrime[i]) {
+                    for (let j = i * i; j <= n; j += i) {
+                        isPrime[j] = false;
+                    }
+                }
+            }
+            
+            const primes = [];
+            for (let i = 2; i <= n; i++) {
+                if (isPrime[i]) primes.push(i);
+            }
+            return primes;
+        }
+        
+        // Logarithmic integral approximation
+        function logarithmicIntegral(n) {
+            if (n < 2) return 0;
+            
+            // Li(n) ≈ n / ln(n) * (1 + 1/ln(n) + 2!/ln²(n) + 3!/ln³(n) + ...)
+            // Using first few terms for approximation
+            const lnn = Math.log(n);
+            let sum = 0;
+            let term = 1;
+            
+            for (let k = 0; k < 5; k++) {
+                sum += term;
+                term *= (k + 1) / lnn;
+            }
+            
+            return (n / lnn) * sum;
+        }
+        
         // Color schemes
         const colorSchemes = {
             classic: (isCoprime, gcdVal) => isCoprime ? '#70ff70' : '#4060b0',
@@ -1694,6 +1782,24 @@
             let mobiusOverN = 0;
             let mobiusOverN2 = 0;
             
+            // Prime counting
+            let primes = [];
+            let primeSet = new Set();
+            
+            // Use sieve if N is reasonable size
+            if (N <= 10000) {
+                primes = sieveOfEratosthenes(N);
+                primeSet = new Set(primes);
+            } else {
+                // For large N, estimate primes in visible range
+                for (let i = 2; i <= Math.min(N, 1000); i++) {
+                    if (isPrimeCheck(i)) {
+                        primes.push(i);
+                        primeSet.add(i);
+                    }
+                }
+            }
+            
             const R = N * circleRadiusPct / 2;
             let discTotal = 0;
             let discCoprime = 0;
@@ -1811,6 +1917,16 @@
             const endTime = performance.now();
             const genTime = ((endTime - startTime) / 1000).toFixed(2);
             
+            // Calculate prime statistics
+            const primeCount = primes.length;
+            const primeApprox = N / Math.log(N);
+            const primeRatio = primeCount / primeApprox;
+            const primeLogInt = logarithmicIntegral(N);
+            const primeError = primeCount - primeLogInt;
+            const largestPrime = primes.length > 0 ? primes[primes.length - 1] : 0;
+            const primeDensity = primeCount / N;
+            const primeRecipSum = primes.reduce((sum, p) => sum + 1/p, 0);
+            
             // Calculate statistics
             const totalPoints = N * N;
             const coprimeDensity = coprimeCount / totalPoints;
@@ -1841,7 +1957,15 @@
                 genTime,
                 resolution,
                 pointSize,
-                colorScheme: colorSchemeName
+                colorScheme: colorSchemeName,
+                primeCount,
+                primeApprox,
+                primeRatio,
+                primeLogInt,
+                primeError,
+                largestPrime,
+                primeDensity,
+                primeRecipSum
             };
             
             updateStatistics();
@@ -2180,6 +2304,16 @@
             document.getElementById('mobiusSquared').textContent = s.mobiusOverN2.toFixed(6);
             document.getElementById('gcdCount').textContent = Object.keys(s.gcdDistribution).length;
             
+            // Prime stats
+            document.getElementById('primeCount').textContent = s.primeCount.toLocaleString();
+            document.getElementById('primeApprox').textContent = s.primeApprox.toFixed(2);
+            document.getElementById('primeRatio').textContent = s.primeRatio.toFixed(6);
+            document.getElementById('primeLogInt').textContent = s.primeLogInt.toFixed(2);
+            document.getElementById('primeError').textContent = s.primeError.toFixed(2);
+            document.getElementById('largestPrime').textContent = s.largestPrime.toLocaleString();
+            document.getElementById('primeDensity').textContent = s.primeDensity.toFixed(6);
+            document.getElementById('primeRecipSum').textContent = s.primeRecipSum.toFixed(6);
+            
             // Compute stats
             document.getElementById('dimensions').textContent = `${s.N} × ${s.N}`;
             document.getElementById('canvasSize').textContent = `${s.resolution} × ${s.resolution}`;
@@ -2383,4 +2517,4 @@
         };
     </script>
 </body>
-                        </html>
+                            </html>
