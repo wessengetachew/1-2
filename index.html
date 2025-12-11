@@ -770,7 +770,7 @@
                     
                     <div class="feature-card">
                         <h4>Point Labels</h4>
-                        <p>Label points by GCD, fraction, coordinates, or reduced fraction with customizable appearance.</p>
+                        <p>Label points by GCD, fraction, coordinates, reduced fraction, polar form, or norm. Choose overlay, replace, or offset styles. Filter to coprime points only with customizable appearance.</p>
                     </div>
                     
                     <div class="feature-card">
@@ -814,9 +814,11 @@
                 <h3>4. Zooming and Labeling</h3>
                 <ul>
                     <li>Use the Zoom slider to magnify regions (up to 20x)</li>
-                    <li>Pan using the X and Y offset sliders</li>
-                    <li>Enable "Show Point Labels" and choose a label type</li>
+                    <li>Pan using the X and Y offset sliders (or drag the canvas)</li>
+                    <li>Enable "Show Point Labels" and choose a label type (GCD, fractions, polar, norm)</li>
+                    <li>Choose label style: <strong>Overlay</strong> (on points), <strong>Replace</strong> (instead of points), or <strong>Offset</strong> (above points)</li>
                     <li>Adjust font size and threshold for optimal visibility</li>
+                    <li>Enable "Label Coprime Only" to focus on primitive vectors</li>
                 </ul>
                 
                 <h3>5. Statistical Analysis</h3>
@@ -1075,6 +1077,15 @@
                         <option value="fraction">a/b Fraction</option>
                         <option value="coordinates">Coordinates (a,b)</option>
                         <option value="reduced">Reduced Fraction</option>
+                        <option value="polar">Polar (r, θ°)</option>
+                        <option value="norm">Norm a²+b²</option>
+                    </select>
+                    
+                    <label>Label Style</label>
+                    <select id="labelStyle" disabled>
+                        <option value="overlay">Overlay on Points</option>
+                        <option value="replace">Replace Points</option>
+                        <option value="offset">Offset Above Points</option>
                     </select>
                     
                     <label>Label Threshold (max points to label)</label>
@@ -1084,6 +1095,11 @@
                     <label>Font Size</label>
                     <input type="range" id="labelFontSize" min="8" max="24" value="12" step="1" disabled>
                     <div class="range-value" id="labelFontSizeValue">12px</div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="labelCoprimeOnly" disabled>
+                        <label>Label Coprime Points Only</label>
+                    </div>
                 </div>
                 
                 <div class="control-group">
@@ -1621,10 +1637,12 @@
         // Label controls
         const showLabelsCheck = document.getElementById('showLabels');
         const labelTypeSelect = document.getElementById('labelType');
+        const labelStyleSelect = document.getElementById('labelStyle');
         const labelThresholdSlider = document.getElementById('labelThreshold');
         const labelThresholdValue = document.getElementById('labelThresholdValue');
         const labelFontSizeSlider = document.getElementById('labelFontSize');
         const labelFontSizeValue = document.getElementById('labelFontSizeValue');
+        const labelCoprimeOnlyCheck = document.getElementById('labelCoprimeOnly');
         
         // Zoom controls
         const zoomLevelSlider = document.getElementById('zoomLevel');
@@ -1818,12 +1836,22 @@
         showLabelsCheck.onchange = () => {
             const enabled = showLabelsCheck.checked;
             labelTypeSelect.disabled = !enabled;
+            labelStyleSelect.disabled = !enabled;
             labelThresholdSlider.disabled = !enabled;
             labelFontSizeSlider.disabled = !enabled;
+            labelCoprimeOnlyCheck.disabled = !enabled;
             if (baseCanvas) redrawWithZoomAndLabels();
         };
         
         labelTypeSelect.onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        labelStyleSelect.onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        labelCoprimeOnlyCheck.onchange = () => {
             if (baseCanvas) redrawWithZoomAndLabels();
         };
         
@@ -2513,8 +2541,10 @@
         
         function addLabels(zoom, panXPct, panYPct) {
             const labelType = labelTypeSelect.value;
+            const labelStyle = labelStyleSelect.value;
             const threshold = parseInt(labelThresholdSlider.value);
             const fontSize = parseInt(labelFontSizeSlider.value);
+            const coprimeOnly = labelCoprimeOnlyCheck.checked;
             
             if (!latticeData || latticeData.length === 0) return;
             
@@ -2539,7 +2569,10 @@
                 for (let b = minB; b <= maxB; b++) {
                     const key = `${a},${b}`;
                     if (latticeGrid[key]) {
-                        visiblePoints.push(latticeGrid[key]);
+                        const point = latticeGrid[key];
+                        if (!coprimeOnly || point.coprime) {
+                            visiblePoints.push(point);
+                        }
                     }
                 }
             }
@@ -2575,6 +2608,14 @@
                         const frac = simplifyFraction(a, b);
                         labelText = `${frac.num}/${frac.den}`;
                         break;
+                    case 'polar':
+                        const r = polarRadius(a, b);
+                        const theta = angleDegrees(a, b);
+                        labelText = `${r.toFixed(1)},${theta.toFixed(0)}°`;
+                        break;
+                    case 'norm':
+                        labelText = (a * a + b * b).toString();
+                        break;
                 }
                 
                 // Calculate screen position with zoom and pan
@@ -2585,20 +2626,59 @@
                 const screenX = (x - canvas.width / 2 - (panXPct * canvas.width)) * zoom + canvas.width / 2;
                 const screenY = (y - canvas.height / 2 - (panYPct * canvas.height)) * zoom + canvas.height / 2;
                 
-                // Draw label with background
+                // Measure text for positioning
                 const metrics = ctx.measureText(labelText);
                 const padding = 3;
                 
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(
-                    screenX - metrics.width / 2 - padding,
-                    screenY - fontSize / 2 - padding,
-                    metrics.width + padding * 2,
-                    fontSize + padding * 2
-                );
-                
-                ctx.fillStyle = point.coprime ? '#70ff70' : '#4fc3f7';
-                ctx.fillText(labelText, screenX, screenY);
+                // Apply label style
+                if (labelStyle === 'replace') {
+                    // Replace point with label - clear the point area first
+                    const pointSizeScaled = parseInt(pointSizeSlider.value) * zoom;
+                    ctx.fillStyle = '#000000'; // Background color
+                    ctx.fillRect(
+                        screenX - pointSizeScaled / 2,
+                        screenY - pointSizeScaled / 2,
+                        pointSizeScaled,
+                        pointSizeScaled
+                    );
+                    
+                    // Draw label text only (no background box)
+                    ctx.fillStyle = point.coprime ? '#70ff70' : '#4fc3f7';
+                    ctx.fillText(labelText, screenX, screenY);
+                    
+                } else if (labelStyle === 'offset') {
+                    // Draw label above the point
+                    const offsetY = screenY - fontSize - 4;
+                    
+                    // Background
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.fillRect(
+                        screenX - metrics.width / 2 - padding,
+                        offsetY - fontSize / 2 - padding,
+                        metrics.width + padding * 2,
+                        fontSize + padding * 2
+                    );
+                    
+                    // Text
+                    ctx.fillStyle = point.coprime ? '#70ff70' : '#4fc3f7';
+                    ctx.fillText(labelText, screenX, offsetY);
+                    
+                } else { // overlay (default)
+                    // Draw label with background on top of point
+                    
+                    // Background
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.fillRect(
+                        screenX - metrics.width / 2 - padding,
+                        screenY - fontSize / 2 - padding,
+                        metrics.width + padding * 2,
+                        fontSize + padding * 2
+                    );
+                    
+                    // Text
+                    ctx.fillStyle = point.coprime ? '#70ff70' : '#4fc3f7';
+                    ctx.fillText(labelText, screenX, screenY);
+                }
             });
             
             ctx.restore();
@@ -2956,8 +3036,10 @@
                 check.checked = !check.checked;
                 const enabled = check.checked;
                 labelTypeSelect.disabled = !enabled;
+                labelStyleSelect.disabled = !enabled;
                 labelThresholdSlider.disabled = !enabled;
                 labelFontSizeSlider.disabled = !enabled;
+                labelCoprimeOnlyCheck.disabled = !enabled;
                 if (baseCanvas) redrawWithZoomAndLabels();
             }
             
@@ -3610,7 +3692,8 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 showGrid: false,
                 colorScheme: 'classic',
                 showRadialDensity: true,
-                showAngularDist: false
+                showAngularDist: false,
+                showLabels: false
             },
             'rh-analysis': {
                 showCircle: true,
@@ -3620,7 +3703,8 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 showAngularDist: true,
                 showDensity: true,
                 angularSectors: 12,
-                showAxes: true
+                showAxes: true,
+                showLabels: false
             },
             'farey-explorer': {
                 showFarey: true,
@@ -3628,22 +3712,25 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 showDiagonals: true,
                 showAxes: true,
                 colorScheme: 'monochrome',
-                showGrid: true
+                showGrid: true,
+                showLabels: false
             },
             'modular-patterns': {
                 highlightModular: true,
-                modulus: 3,
+                modulus: '3',
                 residueA: 0,
                 residueB: 0,
                 showGrid: true,
-                colorScheme: 'rainbow'
+                colorScheme: 'rainbow',
+                showLabels: false
             },
             'high-res': {
                 gridSize: 1000,
-                resolution: 7680,
+                resolution: '7680',
                 pointSize: 2,
                 showAxes: true,
-                colorScheme: 'classic'
+                colorScheme: 'classic',
+                showLabels: false
             },
             'minimal': {
                 showAxes: false,
@@ -3651,7 +3738,12 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 showCircle: false,
                 showRadialDensity: false,
                 showAngularDist: false,
-                colorScheme: 'monochrome'
+                colorScheme: 'monochrome',
+                showDiagonals: false,
+                showFarey: false,
+                highlightModular: false,
+                primeFilter: false,
+                showLabels: false
             }
         };
         
@@ -3668,13 +3760,29 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 return;
             }
             
+            // Reset all options to defaults first
+            document.getElementById('showAxes').checked = false;
+            document.getElementById('showGrid').checked = false;
+            showCircleCheck.checked = false;
+            document.getElementById('showDiagonals').checked = false;
+            document.getElementById('showCustomLine').checked = false;
+            document.getElementById('showHyperbola').checked = false;
+            document.getElementById('highlightModular').checked = false;
+            document.getElementById('showFarey').checked = false;
+            document.getElementById('primeFilter').checked = false;
+            document.getElementById('analyzeDisc').checked = true;
+            document.getElementById('showDensity').checked = true;
+            document.getElementById('showRadialDensity').checked = false;
+            document.getElementById('showAngularDist').checked = false;
+            showLabelsCheck.checked = false;
+            
             // Apply preset settings
             if (preset.gridSize !== undefined) {
                 gridSizeSlider.value = preset.gridSize;
                 gridSizeInput.value = preset.gridSize;
                 gridSizeValue.textContent = preset.gridSize;
             }
-            if (preset.resolution !== undefined) resolutionSelect.value = preset.resolution;
+            if (preset.resolution !== undefined) resolutionSelect.value = preset.resolution.toString();
             if (preset.pointSize !== undefined) {
                 pointSizeSlider.value = preset.pointSize;
                 pointSizeValue.textContent = preset.pointSize;
@@ -3693,6 +3801,18 @@ NOTE: Full comprehensive data available in CSV/JSON exports
             }
             
             if (preset.showDiagonals !== undefined) document.getElementById('showDiagonals').checked = preset.showDiagonals;
+            if (preset.showCustomLine !== undefined) {
+                document.getElementById('showCustomLine').checked = preset.showCustomLine;
+                document.getElementById('customSlope').disabled = !preset.showCustomLine;
+            }
+            if (preset.customSlope !== undefined) document.getElementById('customSlope').value = preset.customSlope;
+            
+            if (preset.showHyperbola !== undefined) {
+                document.getElementById('showHyperbola').checked = preset.showHyperbola;
+                document.getElementById('hyperbolaK').disabled = !preset.showHyperbola;
+            }
+            if (preset.hyperbolaK !== undefined) document.getElementById('hyperbolaK').value = preset.hyperbolaK;
+            
             if (preset.showFarey !== undefined) {
                 document.getElementById('showFarey').checked = preset.showFarey;
                 document.getElementById('fareyOrder').disabled = !preset.showFarey;
@@ -3706,7 +3826,7 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 document.getElementById('residueA').disabled = !enabled;
                 document.getElementById('residueB').disabled = !enabled;
             }
-            if (preset.modulus !== undefined) document.getElementById('modulus').value = preset.modulus;
+            if (preset.modulus !== undefined) document.getElementById('modulus').value = preset.modulus.toString();
             if (preset.residueA !== undefined) document.getElementById('residueA').value = preset.residueA;
             if (preset.residueB !== undefined) document.getElementById('residueB').value = preset.residueB;
             
@@ -3725,18 +3845,42 @@ NOTE: Full comprehensive data available in CSV/JSON exports
             }
             if (preset.angularSectors !== undefined) document.getElementById('angularSectors').value = preset.angularSectors;
             
+            if (preset.showLabels !== undefined) {
+                showLabelsCheck.checked = preset.showLabels;
+                const enabled = preset.showLabels;
+                labelTypeSelect.disabled = !enabled;
+                labelStyleSelect.disabled = !enabled;
+                labelThresholdSlider.disabled = !enabled;
+                labelFontSizeSlider.disabled = !enabled;
+                labelCoprimeOnlyCheck.disabled = !enabled;
+            }
+            if (preset.labelType !== undefined) labelTypeSelect.value = preset.labelType;
+            if (preset.labelStyle !== undefined) labelStyleSelect.value = preset.labelStyle;
+            if (preset.labelThreshold !== undefined) {
+                labelThresholdSlider.value = preset.labelThreshold;
+                labelThresholdValue.textContent = preset.labelThreshold;
+            }
+            if (preset.labelFontSize !== undefined) {
+                labelFontSizeSlider.value = preset.labelFontSize;
+                labelFontSizeValue.textContent = preset.labelFontSize + 'px';
+            }
+            if (preset.labelCoprimeOnly !== undefined) labelCoprimeOnlyCheck.checked = preset.labelCoprimeOnly;
+            
+            // Show status
+            showStatus(`✓ Applied preset: ${presetName}`, 2000);
+            
             // Regenerate visualization
             setTimeout(() => generateVisualization(), 100);
         };
         
         document.getElementById('savePreset').onclick = () => {
             const name = prompt('Enter a name for this preset:');
-            if (!name) return;
+            if (!name || !name.trim()) return;
             
             // Capture current settings
             const currentPreset = {
                 gridSize: parseInt(gridSizeSlider.value),
-                resolution: parseInt(resolutionSelect.value),
+                resolution: resolutionSelect.value,
                 pointSize: parseInt(pointSizeSlider.value),
                 colorScheme: colorSchemeSelect.value,
                 showAxes: document.getElementById('showAxes').checked,
@@ -3744,10 +3888,14 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 showCircle: showCircleCheck.checked,
                 circleRadius: parseInt(circleRadiusSlider.value),
                 showDiagonals: document.getElementById('showDiagonals').checked,
+                showCustomLine: document.getElementById('showCustomLine').checked,
+                customSlope: parseFloat(document.getElementById('customSlope').value),
+                showHyperbola: document.getElementById('showHyperbola').checked,
+                hyperbolaK: parseFloat(document.getElementById('hyperbolaK').value),
                 showFarey: document.getElementById('showFarey').checked,
                 fareyOrder: parseInt(document.getElementById('fareyOrder').value),
                 highlightModular: document.getElementById('highlightModular').checked,
-                modulus: parseInt(document.getElementById('modulus').value),
+                modulus: document.getElementById('modulus').value,
                 residueA: parseInt(document.getElementById('residueA').value),
                 residueB: parseInt(document.getElementById('residueB').value),
                 primeFilter: document.getElementById('primeFilter').checked,
@@ -3755,7 +3903,13 @@ NOTE: Full comprehensive data available in CSV/JSON exports
                 showDensity: document.getElementById('showDensity').checked,
                 showRadialDensity: document.getElementById('showRadialDensity').checked,
                 showAngularDist: document.getElementById('showAngularDist').checked,
-                angularSectors: parseInt(document.getElementById('angularSectors').value)
+                angularSectors: parseInt(document.getElementById('angularSectors').value),
+                showLabels: showLabelsCheck.checked,
+                labelType: labelTypeSelect.value,
+                labelStyle: labelStyleSelect.value,
+                labelThreshold: parseInt(labelThresholdSlider.value),
+                labelFontSize: parseInt(labelFontSizeSlider.value),
+                labelCoprimeOnly: labelCoprimeOnlyCheck.checked
             };
             
             userPresets[name] = currentPreset;
@@ -3764,13 +3918,24 @@ NOTE: Full comprehensive data available in CSV/JSON exports
             try {
                 localStorage.setItem('coprimePresets', JSON.stringify(userPresets));
                 
-                // Add to dropdown
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name + ' (Custom)';
-                document.getElementById('presetSelect').appendChild(option);
+                // Check if already in dropdown
+                let optionExists = false;
+                const selectElement = document.getElementById('presetSelect');
+                for (let i = 0; i < selectElement.options.length; i++) {
+                    if (selectElement.options[i].value === name) {
+                        optionExists = true;
+                        break;
+                    }
+                }
                 
-                alert(`Preset "${name}" saved successfully!`);
+                // Add to dropdown if new
+                if (!optionExists) {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name + ' (Custom)';
+                    selectElement.appendChild(option);
+                }
+                
                 showStatus(`✓ Preset "${name}" saved`, 2000);
             } catch (e) {
                 alert('Could not save preset. Storage may be full.');
@@ -3791,4 +3956,4 @@ NOTE: Full comprehensive data available in CSV/JSON exports
         };
     </script>
 </body>
-            </html>
+                    </html>
