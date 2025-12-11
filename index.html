@@ -415,6 +415,181 @@
             color: #b0b0b0;
             margin: 0;
         }
+        
+        .keyboard-help {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a1a;
+            border: 2px solid #4fc3f7;
+            border-radius: 8px;
+            padding: 30px;
+            z-index: 10000;
+            max-width: 600px;
+            box-shadow: 0 0 40px rgba(79, 195, 247, 0.3);
+            display: none;
+        }
+        
+        .keyboard-help.show {
+            display: block;
+        }
+        
+        .keyboard-help h2 {
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .keyboard-help table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .keyboard-help td {
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .keyboard-help .key {
+            color: #4fc3f7;
+            font-family: monospace;
+            font-weight: bold;
+            text-align: right;
+            padding-right: 20px;
+            white-space: nowrap;
+        }
+        
+        .keyboard-help .action {
+            color: #e0e0e0;
+        }
+        
+        .keyboard-help button {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .help-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #4fc3f7;
+            color: #0a0a0a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
+            transition: all 0.3s;
+            z-index: 9999;
+        }
+        
+        .help-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(79, 195, 247, 0.6);
+        }
+        
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            border-bottom: 1px solid #4fc3f7;
+            padding: 8px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-bar.show {
+            display: flex;
+        }
+        
+        .status-text {
+            color: #4fc3f7;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-close {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+        }
+        
+        .status-close:hover {
+            color: #4fc3f7;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: #1a1a1a;
+            border: 1px solid #4fc3f7;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #e0e0e0;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 10000;
+            display: none;
+            max-width: 300px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .canvas-container {
+            position: relative;
+        }
+        
+        canvas {
+            cursor: grab;
+        }
+        
+        canvas:active {
+            cursor: grabbing;
+        }
+        
+        kbd {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #4fc3f7;
+        }
+        
+        .stat-card:hover {
+            border-color: #4fc3f7;
+            transition: border-color 0.3s;
+        }
+        
+        @media (max-width: 1400px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .controls-panel {
+                max-width: 100%;
+            }
+        }
+        
+        @media print {
+            .controls-panel, .help-icon, .tabs {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -605,7 +780,7 @@
                     
                     <div class="feature-card">
                         <h4>Export Options</h4>
-                        <p>Export visualizations as PNG (with statistics), SVG, CSV data, or JSON statistics.</p>
+                        <p>Export visualizations as PNG (with statistics), SVG, CSV (23 properties per point), or JSON statistics. Comprehensive data includes polar coordinates, Gaussian integer properties, Farey fractions, and modular residues.</p>
                     </div>
                 </div>
             </div>
@@ -649,6 +824,7 @@
                     <li>Check "Global Statistics" for overall coprime density (should approach 6/π² ≈ 0.6079)</li>
                     <li>Review "Möbius Function Analysis" to see Σμ(n)/n² converging to 6/π²</li>
                     <li>Export statistics as JSON for further analysis</li>
+                    <li><strong>Comprehensive exports:</strong> CSV includes 23 properties per point (polar, Gaussian, Farey, modular)</li>
                 </ul>
             </div>
             
@@ -763,19 +939,19 @@
                 
                 <div class="control-group">
                     <h3>Grid Parameters</h3>
-                    <label>Grid Size (N × N)</label>
+                    <label title="Size of the lattice grid (N × N points)">Grid Size (N × N)</label>
                     <input type="number" id="gridSizeInput" min="1" max="10000" value="500" step="1">
                     <input type="range" id="gridSize" min="1" max="10000" value="500" step="1">
                     <div class="range-value" id="gridSizeValue">500</div>
                     
-                    <label>Canvas Resolution</label>
+                    <label title="Output resolution for rendering and export">Canvas Resolution</label>
                     <select id="resolution">
                         <option value="2048">2K (2048px)</option>
                         <option value="3840" selected>4K (3840px)</option>
                         <option value="7680">8K (7680px)</option>
                     </select>
                     
-                    <label>Point Size (pixels)</label>
+                    <label title="Size of each point in pixels">Point Size (pixels)</label>
                     <input type="range" id="pointSize" min="1" max="10" value="3" step="1">
                     <div class="range-value" id="pointSizeValue">3</div>
                 </div>
@@ -789,14 +965,16 @@
                         <option value="monochrome">Monochrome</option>
                         <option value="rainbow">Rainbow by GCD</option>
                         <option value="neon">Neon</option>
+                        <option value="colorblind">Colorblind Safe (Orange/Blue)</option>
+                        <option value="highcontrast">High Contrast (Yellow/Black)</option>
                     </select>
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="showCircle">
-                        <label>Show Radius Circle</label>
+                        <label title="Show circular region for disc analysis">Show Radius Circle</label>
                     </div>
                     
-                    <label>Circle Radius (R)</label>
+                    <label title="Radius as percentage of grid size">Circle Radius (R)</label>
                     <input type="range" id="circleRadius" min="10" max="100" value="40" step="5" disabled>
                     <div class="range-value" id="circleRadiusValue">40%</div>
                     
@@ -867,17 +1045,17 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="primeFilter">
-                        <label>Prime Filter (a or b prime)</label>
+                        <label title="Show only points where a or b is prime">Prime Filter (a or b prime)</label>
                     </div>
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="showRadialDensity">
-                        <label>Show Radial Density Plot</label>
+                        <label title="Plot coprime density vs. radius">Show Radial Density Plot</label>
                     </div>
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="showAngularDist">
-                        <label>Show Angular Distribution</label>
+                        <label title="Show distribution by angular sectors">Show Angular Distribution</label>
                     </div>
                     
                     <label>Angular Sectors</label>
@@ -940,7 +1118,7 @@
                     </div>
                 </div>
                 
-                <button id="generateBtn">Generate Visualization</button>
+                <button id="generateBtn" title="Generate new visualization (Spacebar)">Generate Visualization</button>
                 <div class="progress-bar" id="progressBar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
@@ -949,13 +1127,22 @@
                 <div class="control-group">
                     <h3>Export</h3>
                     <div class="export-section">
-                        <button class="secondary" id="exportPNG">PNG</button>
-                        <button class="secondary" id="exportSVG">SVG</button>
-                        <button class="secondary" id="exportCSV">CSV</button>
+                        <button class="secondary" id="exportPNG" title="Export full grid view (ignores pan/zoom)">PNG</button>
+                        <button class="secondary" id="exportSVG" title="Vector graphics with full grid">SVG</button>
+                        <button class="secondary" id="exportCSV" title="Comprehensive data with 23 properties per point">CSV</button>
                     </div>
-                    <button class="secondary" id="exportStats">Export Statistics (JSON)</button>
+                    <button class="secondary" id="exportStats" title="JSON with full mathematical properties">Export Statistics (JSON)</button>
                     <button class="secondary" id="exportHTML">Export Interactive HTML</button>
                     <button class="secondary" id="copyStats">Copy Stats to Clipboard</button>
+                    
+                    <div style="margin-top: 10px; padding: 10px; background: #2a2a2a; border-radius: 4px; border: 1px solid #444;">
+                        <div style="font-size: 11px; color: #90caf9; margin-bottom: 5px;">📊 Comprehensive Exports:</div>
+                        <div style="font-size: 10px; color: #b0b0b0; line-height: 1.5;">
+                            • PNG: Full grid view (resets zoom/pan)<br>
+                            • CSV: 23 properties per point including polar, Gaussian integer, Farey fractions, modular properties<br>
+                            • JSON: Nested structure with all mathematical data
+                        </div>
+                    </div>
                     
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
                         <label>Batch Export (Multiple Radii)</label>
@@ -988,10 +1175,41 @@
             
             <div class="canvas-container">
                 <div style="position: relative; display: inline-block;">
-                    <canvas id="canvas"></canvas>
+                    <canvas id="canvas" role="img" aria-label="Coprime lattice visualization showing primitive vectors where gcd(a,b)=1"></canvas>
                     <div id="pointHighlight" class="point-highlight"></div>
+                    <div id="tooltip" class="tooltip"></div>
                 </div>
+                <div id="ariaLive" aria-live="polite" aria-atomic="true" style="position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden;"></div>
             </div>
+        </div>
+        
+        <div class="help-icon" id="helpIcon" title="Keyboard Shortcuts (Press ?)">?</div>
+        
+        <div class="keyboard-help" id="keyboardHelp">
+            <h2>⌨️ Keyboard Shortcuts</h2>
+            <table>
+                <tr><td class="key">?</td><td class="action">Toggle this help</td></tr>
+                <tr><td class="key">Space</td><td class="action">Regenerate visualization</td></tr>
+                <tr><td class="key">G</td><td class="action">Toggle grid lines</td></tr>
+                <tr><td class="key">A</td><td class="action">Toggle axes</td></tr>
+                <tr><td class="key">C</td><td class="action">Toggle radius circle</td></tr>
+                <tr><td class="key">D</td><td class="action">Toggle diagonals</td></tr>
+                <tr><td class="key">F</td><td class="action">Toggle Farey sequence</td></tr>
+                <tr><td class="key">P</td><td class="action">Toggle prime filter</td></tr>
+                <tr><td class="key">R</td><td class="action">Toggle radial density plot</td></tr>
+                <tr><td class="key">L</td><td class="action">Toggle point labels</td></tr>
+                <tr><td class="key">↑ ↓ ← →</td><td class="action">Pan view (5% increments)</td></tr>
+                <tr><td class="key">Shift + ↑↓←→</td><td class="action">Pan view (1% increments)</td></tr>
+                <tr><td class="key">+ / =</td><td class="action">Zoom in</td></tr>
+                <tr><td class="key">- / _</td><td class="action">Zoom out</td></tr>
+                <tr><td class="key">0</td><td class="action">Reset zoom and pan</td></tr>
+                <tr><td class="key">1-6</td><td class="action">Apply preset 1-6</td></tr>
+                <tr><td class="key">E</td><td class="action">Export PNG</td></tr>
+                <tr><td class="key">S</td><td class="action">Export SVG</td></tr>
+                <tr><td class="key">J</td><td class="action">Export JSON statistics</td></tr>
+                <tr><td class="key">Ctrl/Cmd + C</td><td class="action">Copy statistics to clipboard</td></tr>
+            </table>
+            <button onclick="document.getElementById('keyboardHelp').classList.remove('show')">Close (Esc)</button>
         </div>
         
         <div class="stats-grid">
@@ -1144,6 +1362,43 @@
                         <span class="stat-label">Zoom Level:</span>
                         <span class="stat-value" id="zoomStat">1.0x</span>
                     </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Performance:</span>
+                        <span class="stat-value" id="perfRating">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; text-align: center;">
+            <div style="color: #4fc3f7; font-size: 16px; font-weight: bold; margin-bottom: 15px;">💡 Quick Tips</div>
+            <div style="color: #b0b0b0; font-size: 12px; line-height: 1.8; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; text-align: left;">
+                <div>
+                    <strong style="color: #4fc3f7;">🖱️ Mouse:</strong> 
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">
+                        <li>Drag canvas to pan</li>
+                        <li>Scroll wheel to zoom</li>
+                        <li>Hover for quick info</li>
+                        <li>Click for details</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong style="color: #4fc3f7;">⌨️ Keyboard:</strong>
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">
+                        <li>Press <kbd>?</kbd> for shortcuts</li>
+                        <li><kbd>Space</kbd> to regenerate</li>
+                        <li>Arrow keys to pan</li>
+                        <li><kbd>+/-</kbd> to zoom</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong style="color: #4fc3f7;">🎯 Analysis:</strong>
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">
+                        <li>Enable circle for RH error</li>
+                        <li>Use presets (1-6 keys)</li>
+                        <li>Prime filter reveals patterns</li>
+                        <li>Plots show convergence</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -1253,8 +1508,10 @@
             return factors.length % 2 === 0 ? 1 : -1;
         }
         
-        // Check if number is prime
+        // Check if number is prime (cached)
         function isPrime(n) {
+            if (primeCache.size > 0) return primeCache.has(n);
+            // Fallback if cache not built
             if (n < 2) return false;
             if (n === 2) return true;
             if (n % 2 === 0) return false;
@@ -1262,6 +1519,27 @@
                 if (n % i === 0) return false;
             }
             return true;
+        }
+        
+        // Build prime cache using Sieve of Eratosthenes
+        function cachePrimes(maxN) {
+            primeCache.clear();
+            if (maxN < 2) return;
+            
+            const sieve = new Array(maxN + 1).fill(true);
+            sieve[0] = sieve[1] = false;
+            
+            for (let i = 2; i * i <= maxN; i++) {
+                if (sieve[i]) {
+                    for (let j = i * i; j <= maxN; j += i) {
+                        sieve[j] = false;
+                    }
+                }
+            }
+            
+            for (let i = 2; i <= maxN; i++) {
+                if (sieve[i]) primeCache.add(i);
+            }
         }
         
         // Generate Farey sequence of order n
@@ -1294,7 +1572,9 @@
                 const hue = (gcdVal * 30) % 360;
                 return `hsl(${hue}, 70%, 50%)`;
             },
-            neon: (isCoprime, gcdVal) => isCoprime ? '#00ffff' : '#ff00ff'
+            neon: (isCoprime, gcdVal) => isCoprime ? '#00ffff' : '#ff00ff',
+            colorblind: (isCoprime, gcdVal) => isCoprime ? '#ff8c00' : '#0080ff', // Orange/Blue for deuteranopia
+            highcontrast: (isCoprime, gcdVal) => isCoprime ? '#ffff00' : '#000000' // Yellow/Black
         };
         
         // Global state
@@ -1305,6 +1585,15 @@
         let currentPixelsPerUnit = 0;
         let baseCanvas = null; // Store the base visualization without zoom/labels
         let userPresets = {}; // Store user-defined presets
+        let primeCache = new Set(); // Cache prime numbers
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragStartPanX = 0;
+        let dragStartPanY = 0;
+        
+        // Keyboard shortcuts help
+        let showingHelp = false;
         
         // Load presets from localStorage
         try {
@@ -1553,8 +1842,21 @@
         // Generate visualization
         document.getElementById('generateBtn').onclick = generateVisualization;
         
+        // Validate inputs
+        function validateInputs() {
+            const N = parseInt(gridSizeSlider.value);
+            if (N < 1 || N > 10000) {
+                alert('Grid size must be between 1 and 10000');
+                return false;
+            }
+            return true;
+        }
+        
         async function generateVisualization() {
-            const startTime = performance.now();
+            if (!validateInputs()) return;
+            
+            try {
+                const startTime = performance.now();
             const loading = document.getElementById('loading');
             const progressBar = document.getElementById('progressBar');
             const progressFill = document.getElementById('progressFill');
@@ -1575,6 +1877,14 @@
             const showGrid = document.getElementById('showGrid').checked;
             const analyzeDisc = document.getElementById('analyzeDisc').checked;
             const primeFilter = document.getElementById('primeFilter').checked;
+            
+            // Cache primes if using prime filter
+            if (primeFilter) {
+                loading.textContent = 'Caching primes...';
+                cachePrimes(N);
+                showStatus(`✓ Cached ${primeCache.size} primes up to ${N}`, 2000);
+            }
+            loading.textContent = 'Computing...';
             
             // Setup canvas
             canvas.width = resolution;
@@ -1758,6 +2068,12 @@
             
             updateStatistics();
             
+            // Screen reader announcement
+            const ariaLive = document.getElementById('ariaLive');
+            if (ariaLive) {
+                ariaLive.textContent = `Visualization complete. ${coprimeCount} coprime points out of ${totalPoints} total. Density: ${coprimeDensity.toFixed(4)}.`;
+            }
+            
             // Generate plots if enabled
             if (document.getElementById('showRadialDensity').checked) {
                 plotRadialDensity();
@@ -1774,6 +2090,13 @@
             baseCanvas.width = canvas.width;
             baseCanvas.height = canvas.height;
             baseCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        } catch (error) {
+            console.error('Error generating visualization:', error);
+            loading.style.display = 'none';
+            progressBar.style.display = 'none';
+            showStatus('❌ Error generating visualization. Try a smaller grid size.', 5000);
+            alert('An error occurred while generating the visualization. Please try a smaller grid size or refresh the page.');
+        }
         }
         
         function redrawWithZoomAndLabels() {
@@ -2283,6 +2606,8 @@
         
         // Point inspection on click
         canvas.addEventListener('click', (event) => {
+            if (isDragging) return; // Don't inspect if we were dragging
+            
             if (!latticeGrid || currentN === 0) return;
             
             const rect = canvas.getBoundingClientRect();
@@ -2438,10 +2763,295 @@
             highlight.style.height = Math.max(20, currentPixelsPerUnit * displayScale * zoom * 2) + 'px';
             highlight.style.display = 'block';
             
-            // Fade out after 2 seconds
+            // Fade out after 3 seconds (extended from 2)
             setTimeout(() => {
                 highlight.style.display = 'none';
-            }, 2000);
+            }, 3000);
+        }
+        
+        // Drag to pan
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            dragStartPanX = parseFloat(panXSlider.value);
+            dragStartPanY = parseFloat(panYSlider.value);
+            canvas.style.cursor = 'grabbing';
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging) {
+                // Show hover tooltip
+                if (latticeGrid && currentN > 0 && !showingHelp) {
+                    showHoverTooltip(e);
+                }
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            const dx = (e.clientX - dragStartX) / rect.width * 100;
+            const dy = (e.clientY - dragStartY) / rect.height * 100;
+            
+            const newPanX = Math.max(-100, Math.min(100, dragStartPanX + dx));
+            const newPanY = Math.max(-100, Math.min(100, dragStartPanY - dy)); // Inverted Y
+            
+            panXSlider.value = newPanX;
+            panYSlider.value = newPanY;
+            panXInput.value = newPanX.toFixed(1);
+            panYInput.value = newPanY.toFixed(1);
+            panXValue.textContent = newPanX.toFixed(1) + '%';
+            panYValue.textContent = newPanY.toFixed(1) + '%';
+            
+            if (baseCanvas) redrawWithZoomAndLabels();
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            if (isDragging) {
+                setTimeout(() => { isDragging = false; }, 100); // Delay to prevent click event
+            }
+            canvas.style.cursor = 'grab';
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+            canvas.style.cursor = 'grab';
+            document.getElementById('tooltip').style.display = 'none';
+        });
+        
+        // Mouse wheel zoom
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            
+            const delta = e.deltaY > 0 ? -0.5 : 0.5;
+            const newZoom = Math.max(1, Math.min(20, parseFloat(zoomLevelSlider.value) + delta));
+            
+            zoomLevelSlider.value = newZoom;
+            zoomLevelValue.textContent = newZoom.toFixed(1) + 'x';
+            
+            if (baseCanvas) redrawWithZoomAndLabels();
+        }, { passive: false });
+        
+        // Hover tooltip
+        function showHoverTooltip(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const canvasX = (event.clientX - rect.left) * scaleX;
+            const canvasY = (event.clientY - rect.top) * scaleY;
+            
+            // Account for zoom and pan
+            const zoom = parseFloat(zoomLevelSlider.value);
+            const panXPct = parseFloat(panXSlider.value) / 100;
+            const panYPct = parseFloat(panYSlider.value) / 100;
+            
+            const unzoomedX = (canvasX - canvas.width / 2) / zoom + canvas.width / 2 + (panXPct * canvas.width);
+            const unzoomedY = (canvasY - canvas.height / 2) / zoom + canvas.height / 2 + (panYPct * canvas.height);
+            
+            const a = Math.floor(unzoomedX / currentPixelsPerUnit);
+            const b = currentN - Math.floor(unzoomedY / currentPixelsPerUnit) - 1;
+            
+            if (a < 0 || a >= currentN || b < 0 || b >= currentN) {
+                document.getElementById('tooltip').style.display = 'none';
+                return;
+            }
+            
+            const key = `${a},${b}`;
+            const point = latticeGrid[key];
+            
+            if (point) {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.innerHTML = `(${a}, ${b}) | GCD: ${point.gcd} | ${point.coprime ? '✓ Coprime' : '✗ Not coprime'}`;
+                tooltip.style.left = (event.clientX + 15) + 'px';
+                tooltip.style.top = (event.clientY + 15) + 'px';
+                tooltip.style.display = 'block';
+            } else {
+                document.getElementById('tooltip').style.display = 'none';
+            }
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ignore if typing in input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            const key = e.key.toLowerCase();
+            const shift = e.shiftKey;
+            const ctrl = e.ctrlKey || e.metaKey;
+            
+            // Help toggle
+            if (key === '?' || key === '/') {
+                e.preventDefault();
+                toggleHelp();
+                return;
+            }
+            
+            // Close help with Escape
+            if (key === 'escape') {
+                document.getElementById('keyboardHelp').classList.remove('show');
+                return;
+            }
+            
+            // Copy stats
+            if (ctrl && key === 'c' && currentStats) {
+                e.preventDefault();
+                document.getElementById('copyStats').click();
+                return;
+            }
+            
+            // Space to regenerate
+            if (key === ' ') {
+                e.preventDefault();
+                generateVisualization();
+                return;
+            }
+            
+            // Toggle controls
+            if (key === 'g') {
+                e.preventDefault();
+                document.getElementById('showGrid').checked = !document.getElementById('showGrid').checked;
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            if (key === 'a') {
+                e.preventDefault();
+                document.getElementById('showAxes').checked = !document.getElementById('showAxes').checked;
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            if (key === 'c') {
+                e.preventDefault();
+                const check = showCircleCheck;
+                check.checked = !check.checked;
+                circleRadiusSlider.disabled = !check.checked;
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            if (key === 'd') {
+                e.preventDefault();
+                document.getElementById('showDiagonals').checked = !document.getElementById('showDiagonals').checked;
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            if (key === 'f') {
+                e.preventDefault();
+                const check = document.getElementById('showFarey');
+                check.checked = !check.checked;
+                document.getElementById('fareyOrder').disabled = !check.checked;
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            if (key === 'p') {
+                e.preventDefault();
+                document.getElementById('primeFilter').checked = !document.getElementById('primeFilter').checked;
+                generateVisualization();
+            }
+            if (key === 'r') {
+                e.preventDefault();
+                const check = document.getElementById('showRadialDensity');
+                check.checked = !check.checked;
+                document.getElementById('radialDensityCard').style.display = check.checked ? 'block' : 'none';
+                if (check.checked && latticeData) plotRadialDensity();
+            }
+            if (key === 'l') {
+                e.preventDefault();
+                const check = showLabelsCheck;
+                check.checked = !check.checked;
+                const enabled = check.checked;
+                labelTypeSelect.disabled = !enabled;
+                labelThresholdSlider.disabled = !enabled;
+                labelFontSizeSlider.disabled = !enabled;
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            
+            // Arrow keys for pan
+            if (key.startsWith('arrow')) {
+                e.preventDefault();
+                const step = shift ? 1 : 5;
+                
+                if (key === 'arrowup') {
+                    panYSlider.value = Math.max(-100, parseFloat(panYSlider.value) - step);
+                } else if (key === 'arrowdown') {
+                    panYSlider.value = Math.min(100, parseFloat(panYSlider.value) + step);
+                } else if (key === 'arrowleft') {
+                    panXSlider.value = Math.max(-100, parseFloat(panXSlider.value) - step);
+                } else if (key === 'arrowright') {
+                    panXSlider.value = Math.min(100, parseFloat(panXSlider.value) + step);
+                }
+                
+                panXInput.value = panXSlider.value;
+                panYInput.value = panYSlider.value;
+                panXValue.textContent = panXSlider.value + '%';
+                panYValue.textContent = panYSlider.value + '%';
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            
+            // Zoom controls
+            if (key === '+' || key === '=') {
+                e.preventDefault();
+                const newZoom = Math.min(20, parseFloat(zoomLevelSlider.value) + 0.5);
+                zoomLevelSlider.value = newZoom;
+                zoomLevelValue.textContent = newZoom.toFixed(1) + 'x';
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            if (key === '-' || key === '_') {
+                e.preventDefault();
+                const newZoom = Math.max(1, parseFloat(zoomLevelSlider.value) - 0.5);
+                zoomLevelSlider.value = newZoom;
+                zoomLevelValue.textContent = newZoom.toFixed(1) + 'x';
+                if (baseCanvas) redrawWithZoomAndLabels();
+            }
+            if (key === '0') {
+                e.preventDefault();
+                document.getElementById('resetZoom').click();
+            }
+            
+            // Presets 1-6
+            if (['1', '2', '3', '4', '5', '6'].includes(key)) {
+                e.preventDefault();
+                const presets = ['prime-focus', 'rh-analysis', 'farey-explorer', 'modular-patterns', 'high-res', 'minimal'];
+                const presetName = presets[parseInt(key) - 1];
+                document.getElementById('presetSelect').value = presetName;
+                document.getElementById('applyPreset').click();
+            }
+            
+            // Export shortcuts
+            if (key === 'e') {
+                e.preventDefault();
+                if (currentStats) document.getElementById('exportPNG').click();
+            }
+            if (key === 's') {
+                e.preventDefault();
+                if (currentStats) document.getElementById('exportSVG').click();
+            }
+            if (key === 'j') {
+                e.preventDefault();
+                if (currentStats) document.getElementById('exportStats').click();
+            }
+        });
+        
+        // Toggle help
+        function toggleHelp() {
+            const help = document.getElementById('keyboardHelp');
+            showingHelp = !showingHelp;
+            if (showingHelp) {
+                help.classList.add('show');
+            } else {
+                help.classList.remove('show');
+            }
+        }
+        
+        document.getElementById('helpIcon').onclick = toggleHelp;
+        
+        // Status notification
+        function showStatus(message, duration = 3000) {
+            const statusBar = document.getElementById('statusBar');
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = message;
+            statusBar.classList.add('show');
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    statusBar.classList.remove('show');
+                }, duration);
+            }
         }
         
         function updateStatistics() {
@@ -2493,7 +3103,6 @@
             document.getElementById('zoomStat').textContent = parseFloat(zoomLevelSlider.value).toFixed(1) + 'x';
         }
         
-        // Export functions
         document.getElementById('exportPNG').onclick = () => {
             // Create a temporary canvas with stats overlay
             const exportCanvas = document.createElement('canvas');
@@ -2516,8 +3125,26 @@
             exportCtx.fillStyle = '#0a0a0a';
             exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
             
-            // Draw the visualization
+            // Save current pan/zoom and reset for full grid export
+            const savedZoom = zoomLevelSlider.value;
+            const savedPanX = panXSlider.value;
+            const savedPanY = panYSlider.value;
+            
+            zoomLevelSlider.value = 1;
+            panXSlider.value = 0;
+            panYSlider.value = 0;
+            
+            // Redraw with full view
+            if (baseCanvas) redrawWithZoomAndLabels();
+            
+            // Draw the full visualization
             exportCtx.drawImage(canvas, 0, 0);
+            
+            // Restore original view
+            zoomLevelSlider.value = savedZoom;
+            panXSlider.value = savedPanX;
+            panYSlider.value = savedPanY;
+            if (baseCanvas) redrawWithZoomAndLabels();
             
             // Draw legend background
             exportCtx.fillStyle = '#1a1a1a';
@@ -2694,28 +3321,124 @@
             link.download = `coprime_lattice_${N}x${N}_${Date.now()}.svg`;
             link.href = URL.createObjectURL(blob);
             link.click();
+            
+            showStatus('✓ SVG exported with full grid', 2000);
         };
         
         document.getElementById('exportCSV').onclick = () => {
-            let csv = 'a,b,gcd,coprime\n';
+            // Comprehensive CSV with all mathematical properties
+            let csv = 'a,b,gcd,coprime,radius,theta_degrees,theta_radians,real_part,imaginary_part,norm_squared,';
+            csv += 'farey_numerator,farey_denominator,farey_decimal,';
+            csv += 'mod2_a,mod2_b,mod3_a,mod3_b,mod5_a,mod5_b,';
+            csv += 'is_prime_a,is_prime_b,mobius_gcd\n';
+            
             latticeData.forEach(point => {
-                csv += `${point.a},${point.b},${point.gcd},${point.coprime ? 1 : 0}\n`;
+                const {a, b, gcd: gcdVal, coprime} = point;
+                
+                // Polar coordinates
+                const r = polarRadius(a, b);
+                const thetaDeg = angleDegrees(a, b);
+                const thetaRad = thetaDeg * (Math.PI / 180);
+                
+                // Complex number properties (treating as Gaussian integer a + bi)
+                const realPart = a;
+                const imagPart = b;
+                const normSquared = a * a + b * b;
+                
+                // Farey fraction (reduced form)
+                const farey = simplifyFraction(a, b);
+                const fareyDecimal = b === 0 ? 'Infinity' : (a / b).toFixed(10);
+                
+                // Modular properties
+                const mod2_a = a % 2;
+                const mod2_b = b % 2;
+                const mod3_a = a % 3;
+                const mod3_b = b % 3;
+                const mod5_a = a % 5;
+                const mod5_b = b % 5;
+                
+                // Prime properties
+                const isPrimeA = isPrime(a);
+                const isPrimeB = isPrime(b);
+                
+                // Möbius function of GCD
+                const mobiusGcd = mobius(gcdVal);
+                
+                csv += `${a},${b},${gcdVal},${coprime ? 1 : 0},${r.toFixed(10)},${thetaDeg.toFixed(10)},${thetaRad.toFixed(10)},`;
+                csv += `${realPart},${imagPart},${normSquared},`;
+                csv += `${farey.num},${farey.den},${fareyDecimal},`;
+                csv += `${mod2_a},${mod2_b},${mod3_a},${mod3_b},${mod5_a},${mod5_b},`;
+                csv += `${isPrimeA ? 1 : 0},${isPrimeB ? 1 : 0},${mobiusGcd}\n`;
             });
             
             const blob = new Blob([csv], {type: 'text/csv'});
             const link = document.createElement('a');
-            link.download = `coprime_lattice_${currentStats.N}x${currentStats.N}_${Date.now()}.csv`;
+            link.download = `coprime_lattice_comprehensive_${currentStats.N}x${currentStats.N}_${Date.now()}.csv`;
             link.href = URL.createObjectURL(blob);
             link.click();
+            
+            showStatus('✓ Comprehensive CSV exported with all properties', 2000);
         };
         
         document.getElementById('exportStats').onclick = () => {
-            const json = JSON.stringify(currentStats, null, 2);
+            // Enhanced JSON with comprehensive point data
+            const enhancedStats = {
+                ...currentStats,
+                metadata: {
+                    generated_at: new Date().toISOString(),
+                    grid_size: currentStats.N,
+                    total_points: currentStats.totalPoints,
+                    prime_filter_enabled: document.getElementById('primeFilter').checked,
+                    color_scheme: currentStats.colorScheme
+                },
+                comprehensive_point_data: latticeData.map(point => {
+                    const {a, b, gcd: gcdVal, coprime} = point;
+                    const r = polarRadius(a, b);
+                    const thetaDeg = angleDegrees(a, b);
+                    const thetaRad = thetaDeg * (Math.PI / 180);
+                    const farey = simplifyFraction(a, b);
+                    
+                    return {
+                        cartesian: {a, b},
+                        gcd: gcdVal,
+                        coprime: coprime,
+                        polar: {
+                            radius: r,
+                            theta_degrees: thetaDeg,
+                            theta_radians: thetaRad
+                        },
+                        gaussian_integer: {
+                            real: a,
+                            imaginary: b,
+                            norm_squared: a * a + b * b
+                        },
+                        farey_fraction: {
+                            numerator: farey.num,
+                            denominator: farey.den,
+                            decimal: b === 0 ? null : a / b
+                        },
+                        modular_properties: {
+                            mod2: {a: a % 2, b: b % 2},
+                            mod3: {a: a % 3, b: b % 3},
+                            mod5: {a: a % 5, b: b % 5}
+                        },
+                        prime_properties: {
+                            a_is_prime: isPrime(a),
+                            b_is_prime: isPrime(b)
+                        },
+                        mobius_of_gcd: mobius(gcdVal)
+                    };
+                })
+            };
+            
+            const json = JSON.stringify(enhancedStats, null, 2);
             const blob = new Blob([json], {type: 'application/json'});
             const link = document.createElement('a');
-            link.download = `coprime_lattice_stats_${currentStats.N}x${currentStats.N}_${Date.now()}.json`;
+            link.download = `coprime_lattice_comprehensive_${currentStats.N}x${currentStats.N}_${Date.now()}.json`;
             link.href = URL.createObjectURL(blob);
             link.click();
+            
+            showStatus('✓ Comprehensive JSON exported with full point data', 2000);
         };
         
         document.getElementById('copyStats').onclick = () => {
@@ -2740,9 +3463,21 @@ MÖBIUS FUNCTION:
 - M(N) = Σμ(n): ${currentStats.mobiusSum}
 - |M(N)|/N^(1/2): ${(Math.abs(currentStats.mobiusSum) / Math.sqrt(currentStats.N)).toFixed(4)}
 - Σμ(n)/n²: ${currentStats.mobiusOverN2.toFixed(6)}
+
+SAMPLE POINT DATA (first 5 coprime points):
+${latticeData.filter(p => p.coprime).slice(0, 5).map(p => {
+    const r = polarRadius(p.a, p.b);
+    const theta = angleDegrees(p.a, p.b);
+    const farey = simplifyFraction(p.a, p.b);
+    return `  (${p.a}, ${p.b}): r=${r.toFixed(4)}, θ=${theta.toFixed(2)}°, Farey=${farey.num}/${farey.den}, norm²=${p.a*p.a + p.b*p.b}`;
+}).join('\n')}
+
+NOTE: Full comprehensive data available in CSV/JSON exports
             `.trim();
             
             navigator.clipboard.writeText(statsText).then(() => {
+                showStatus('✓ Statistics copied to clipboard!', 2000);
+            }).catch(() => {
                 alert('Statistics copied to clipboard!');
             });
         };
@@ -2797,9 +3532,18 @@ MÖBIUS FUNCTION:
                 return;
             }
             
-            const radii = radiiInput.split(',').map(r => parseFloat(r.trim())).filter(r => !isNaN(r) && r > 0);
+            // Validate radii
+            const radii = radiiInput.split(',')
+                .map(r => parseFloat(r.trim()))
+                .filter(r => !isNaN(r) && r > 0 && r <= 100);
+            
             if (radii.length === 0) {
-                alert('No valid radii values found');
+                alert('No valid radii values found. Enter values between 0-100.');
+                return;
+            }
+            
+            if (radii.some(r => r < 10 || r > 100)) {
+                alert('All radii must be between 10 and 100');
                 return;
             }
             
@@ -2809,11 +3553,15 @@ MÖBIUS FUNCTION:
             
             const originalRadius = circleRadiusSlider.value;
             const originalShowCircle = showCircleCheck.checked;
+            const btn = document.getElementById('batchExport');
+            const originalText = btn.textContent;
             
             showCircleCheck.checked = true;
             
             for (let i = 0; i < radii.length; i++) {
                 const r = radii[i];
+                btn.textContent = `Exporting ${i + 1}/${radii.length}...`;
+                
                 circleRadiusSlider.value = r;
                 circleRadiusValue.textContent = r + '%';
                 
@@ -2836,10 +3584,12 @@ MÖBIUS FUNCTION:
             circleRadiusSlider.value = originalRadius;
             showCircleCheck.checked = originalShowCircle;
             circleRadiusValue.textContent = originalRadius + '%';
+            btn.textContent = originalText;
             
             await generateVisualization();
             
             alert(`Batch export complete! ${radii.length} images exported.`);
+            showStatus(`✓ Batch export complete: ${radii.length} images`, 3000);
         };
         
         // Export individual chart
@@ -3021,6 +3771,7 @@ MÖBIUS FUNCTION:
                 document.getElementById('presetSelect').appendChild(option);
                 
                 alert(`Preset "${name}" saved successfully!`);
+                showStatus(`✓ Preset "${name}" saved`, 2000);
             } catch (e) {
                 alert('Could not save preset. Storage may be full.');
             }
@@ -3040,4 +3791,4 @@ MÖBIUS FUNCTION:
         };
     </script>
 </body>
-</html>
+            </html>
