@@ -265,13 +265,477 @@
             width: 0%;
             transition: width 0.3s;
         }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+        
+        .tab {
+            padding: 10px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: #b0b0b0;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #2a2a2a;
+            color: #4fc3f7;
+        }
+        
+        .tab.active {
+            background: #2a2a2a;
+            color: #4fc3f7;
+            border-bottom: 2px solid #4fc3f7;
+            margin-bottom: -2px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .intro-section {
+            margin-bottom: 30px;
+        }
+        
+        .intro-section h2 {
+            color: #4fc3f7;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+        }
+        
+        .intro-section h3 {
+            color: #90caf9;
+            font-size: 16px;
+            margin: 20px 0 10px 0;
+        }
+        
+        .intro-section p {
+            color: #e0e0e0;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        
+        .intro-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .intro-section li {
+            color: #e0e0e0;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        
+        .math-formula {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #4fc3f7;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: #90caf9;
+            font-size: 14px;
+        }
+        
+        .highlight-box {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #4fc3f7;
+            margin: 15px 0;
+        }
+        
+        .highlight-box strong {
+            color: #4fc3f7;
+        }
+        
+        .example-box {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            margin: 15px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+        
+        .feature-card h4 {
+            color: #4fc3f7;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            font-size: 12px;
+            color: #b0b0b0;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Coprime Lattice & Riemann Hypothesis Explorer</h1>
-        <div class="subtitle">Interactive visualization of gcd(a,b)=1 patterns and their connection to ζ(s) zeros</div>
+        <div class="subtitle">Interactive visualization of primitive lattice vectors, gcd(a,b)=1 patterns, and their deep connection to ζ(s) zeros</div>
         
+        <div class="tabs">
+            <div class="tab" data-tab="intro">Introduction</div>
+            <div class="tab active" data-tab="explorer">Primitive Lattice</div>
+            <div class="tab" data-tab="unitcircle">Unit Circle</div>
+            <div class="tab" data-tab="rings">Nested Rings</div>
+            <div class="tab" data-tab="pairgrid">Pairs Grid</div>
+            <div class="tab" data-tab="totient">φ(m)/m Chart</div>
+        </div>
+        
+        <div id="introTab" class="tab-content">
+            <div class="intro-section">
+                <h2>Welcome to the Coprime Lattice Explorer</h2>
+                <p>
+                    This tool provides an interactive visualization of one of the most beautiful connections in mathematics: 
+                    the relationship between <strong>coprime integer pairs</strong> (primitive lattice vectors) and the 
+                    <strong>Riemann Hypothesis</strong>, one of the most important unsolved problems in mathematics.
+                </p>
+                
+                <div class="highlight-box">
+                    <strong>Main Theorem:</strong> The probability that two random integers are coprime converges to 
+                    <strong>6/π² ≈ 0.6079</strong>, which equals <strong>1/ζ(2)</strong>.
+                </div>
+                
+                <p>
+                    This explorer focuses on <strong>primitive lattice vectors</strong> - points (a,b) where gcd(a,b) = 1, 
+                    also known as "visible points" from the origin. These points form the building blocks of the integer 
+                    lattice and have profound connections to Gaussian integers, Fermat's Two-Square Theorem, and the 
+                    distribution of prime numbers.
+                </p>
+            </div>
+            
+            <div class="intro-section">
+                <h2>What Are Coprime Numbers?</h2>
+                <p>
+                    Two integers <em>a</em> and <em>b</em> are <strong>coprime</strong> (or relatively prime) if their 
+                    greatest common divisor (GCD) is 1. In other words, they share no common factors except 1. These 
+                    pairs form <strong>primitive lattice vectors</strong> that are "visible" from the origin when you 
+                    imagine standing at (0,0) and looking through the lattice.
+                </p>
+                
+                <div class="example-box">
+                    <strong>Examples:</strong>
+                    <ul>
+                        <li>gcd(8, 15) = 1 → Coprime ✓ (Primitive vector)</li>
+                        <li>gcd(12, 18) = 6 → Not coprime ✗ (Blocked by (2,3))</li>
+                        <li>gcd(7, 11) = 1 → Coprime ✓ (Primitive vector)</li>
+                    </ul>
+                </div>
+                
+                <h3>Gaussian Integers & Norm</h3>
+                <p>
+                    Each lattice point (a,b) corresponds to a <strong>Gaussian integer</strong> z = a + bi. 
+                    The norm is N(z) = a² + b², which measures the squared distance from the origin. 
+                    <strong>Fermat's Two-Square Theorem</strong> states that a prime p can be written as a sum of 
+                    two squares (p = a² + b²) if and only if p ≡ 1 (mod 4) or p = 2.
+                </p>
+                
+                <p>
+                    A fundamental result in number theory states that the probability that two randomly chosen integers 
+                    are coprime is <strong>6/π²</strong> ≈ 0.607927. This remarkable constant connects the geometry of 
+                    circles (π) with the distribution of prime numbers!
+                </p>
+                
+                <div class="math-formula">
+                    P(gcd(a,b) = 1) = 6/π² = 1/ζ(2) = Σ 1/n² = 1 - 1/4 - 1/9 - 1/25 + ...
+                </div>
+            </div>
+            
+            <div class="intro-section">
+                <h2>The Riemann Zeta Function</h2>
+                <p>
+                    The <strong>Riemann zeta function</strong> ζ(s) is defined for complex numbers s with Re(s) > 1 as:
+                </p>
+                
+                <div class="math-formula">
+                    ζ(s) = Σ(n=1 to ∞) 1/n^s = 1/1^s + 1/2^s + 1/3^s + 1/4^s + ...
+                </div>
+                
+                <p>
+                    This function has a deep connection to prime numbers through the Euler product formula:
+                </p>
+                
+                <div class="math-formula">
+                    ζ(s) = ∏(p prime) 1/(1 - p^(-s))
+                </div>
+                
+                <p>
+                    The reciprocal of ζ(s) can be expressed using the <strong>Möbius function</strong> μ(n):
+                </p>
+                
+                <div class="math-formula">
+                    1/ζ(s) = Σ(n=1 to ∞) μ(n)/n^s
+                </div>
+                
+                <p>
+                    where μ(n) = 1 if n is a product of an even number of distinct primes, 
+                    -1 if n is a product of an odd number of distinct primes, and 0 if n has a squared prime factor.
+                </p>
+            </div>
+            
+            <div class="intro-section">
+                <h2>The Riemann Hypothesis</h2>
+                <p>
+                    The <strong>Riemann Hypothesis</strong> (RH) is one of the seven Millennium Prize Problems, 
+                    with a $1 million prize for its proof. It states:
+                </p>
+                
+                <div class="highlight-box">
+                    <strong>Riemann Hypothesis:</strong> All non-trivial zeros of the Riemann zeta function ζ(s) 
+                    lie on the critical line Re(s) = 1/2 in the complex plane.
+                </div>
+                
+                <p>
+                    In other words, if ζ(s) = 0 and s is not a negative even integer, then s = 1/2 + it for some real number t.
+                </p>
+            </div>
+            
+            <div class="intro-section">
+                <h2>Connection to Coprime Lattice Points</h2>
+                <p>
+                    Let <strong>V(R)</strong> be the number of coprime lattice points (a, b) inside a disc of radius R 
+                    centered at the origin. The Gauss Circle Problem and related theory tell us:
+                </p>
+                
+                <div class="math-formula">
+                    V(R) = (6/π²) · πR² + E(R)
+                </div>
+                
+                <p>
+                    where E(R) is the error term. The <strong>exponent in the error bound</strong> is directly related 
+                    to the zeros of ζ(s):
+                </p>
+                
+                <div class="highlight-box">
+                    <strong>Key Connection:</strong> The Riemann Hypothesis is equivalent to the statement that 
+                    <strong>|E(R)| = O(R^(1/2 + ε))</strong> for any ε > 0.
+                    <br><br>
+                    The exponent <strong>1/2</strong> here is exactly <strong>Re(s) = 1/2</strong> from the critical line!
+                </div>
+                
+                <p>
+                    This means that how coprime lattice points distribute in a circular region is fundamentally 
+                    connected to where the zeros of ζ(s) lie in the complex plane.
+                </p>
+            </div>
+            
+            <div class="intro-section">
+                <h2>Tool Features</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Grid Parameters</h4>
+                        <p>Generate lattice grids from 1×1 up to 10,000×10,000 points with customizable resolution and point size.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Color Schemes</h4>
+                        <p>Multiple visualization modes including classic, heatmap, rainbow by GCD, and more to highlight different patterns.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Disc Analysis</h4>
+                        <p>Compute V(R), the error term E(R), and verify the relationship to RH by analyzing circular regions.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Möbius Statistics</h4>
+                        <p>Calculate Möbius function sums and verify convergence to 1/ζ(2) = 6/π².</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Zoom & Pan</h4>
+                        <p>Zoom up to 20x and pan around to explore specific regions in detail.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Point Labels</h4>
+                        <p>Label points by GCD, fraction, coordinates, or reduced fraction with customizable appearance.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Point Inspector</h4>
+                        <p>Click any point to see its properties: GCD, polar coordinates, modular properties, and more.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Export Options</h4>
+                        <p>Export visualizations as PNG (with statistics), SVG, CSV data, or JSON statistics.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="intro-section">
+                <h2>How to Use This Tool</h2>
+                
+                <h3>1. Basic Exploration</h3>
+                <ul>
+                    <li>Click the "Explorer" tab above to access the interactive tool</li>
+                    <li>Start with a moderate grid size (500×500) and click "Generate Visualization"</li>
+                    <li>Green/white points are coprime pairs; other colors indicate non-coprime pairs</li>
+                    <li>Observe the density and distribution patterns</li>
+                </ul>
+                
+                <h3>2. Analyzing the Riemann Hypothesis Connection</h3>
+                <ul>
+                    <li>Enable "Show Radius Circle" in the Visualization section</li>
+                    <li>Adjust the circle radius R to different values</li>
+                    <li>Check the "Disc Analysis" statistics to see V(R), E(R), and |E(R)|/R^(1/2)</li>
+                    <li>The ratio |E(R)|/R^(1/2) should remain bounded if RH is true</li>
+                </ul>
+                
+                <h3>3. Detailed Point Inspection</h3>
+                <ul>
+                    <li>Click on any point in the visualization</li>
+                    <li>The "Point Inspector" panel shows: coordinates, GCD, polar form, modular properties</li>
+                    <li>Compare coprime vs non-coprime points to understand the patterns</li>
+                </ul>
+                
+                <h3>4. Zooming and Labeling</h3>
+                <ul>
+                    <li>Use the Zoom slider to magnify regions (up to 20x)</li>
+                    <li>Pan using the X and Y offset sliders</li>
+                    <li>Enable "Show Point Labels" and choose a label type</li>
+                    <li>Adjust font size and threshold for optimal visibility</li>
+                </ul>
+                
+                <h3>5. Statistical Analysis</h3>
+                <ul>
+                    <li>Check "Global Statistics" for overall coprime density (should approach 6/π² ≈ 0.6079)</li>
+                    <li>Review "Möbius Function Analysis" to see Σμ(n)/n² converging to 6/π²</li>
+                    <li>Export statistics as JSON for further analysis</li>
+                </ul>
+            </div>
+            
+            <div class="intro-section">
+                <h2>Mathematical Background</h2>
+                
+                <h3>Why 6/π²?</h3>
+                <p>
+                    The probability that gcd(a,b) = 1 equals 6/π² because:
+                </p>
+                <div class="math-formula">
+                    P(gcd(a,b) = 1) = ∏(p prime) P(p does not divide both a and b)
+                    = ∏(p prime) (1 - 1/p²)
+                    = 1/ζ(2) = 1/(π²/6) = 6/π²
+                </div>
+                
+                <h3>Key Mathematical Results</h3>
+                <div class="example-box">
+                    <strong>Coprime Density:</strong> lim P(gcd(a,b)=1) = 6/π² = 1/ζ(2)<br>
+                    <strong>Average Totient:</strong> lim (1/N)Σφ(m)/m = 6/π²<br>
+                    <strong>Farey Growth:</strong> |F_n| ~ (3/π²)n²<br>
+                    <strong>Primitive Vectors:</strong> Count in disc of radius R ~ (6/π)R²<br>
+                    <strong>Euler Product:</strong> ζ(s) = ∏(1 - p^(-s))^(-1) over all primes p<br>
+                    <strong>Möbius Function:</strong> 𝟙_gcd=1 = Σ μ(d) over divisors d<br>
+                    <strong>RH Connection:</strong> Error term E(R) = O(R^(1/2+ε)) ⟺ Riemann Hypothesis
+                </div>
+                
+                <h3>The Error Term and RH</h3>
+                <p>
+                    If we count coprime points in a disc, the main term is (6/π²)πR² = 6R²/π. 
+                    The error E(R) measures the deviation from this expectation. 
+                    Better bounds on E(R) are equivalent to information about ζ(s) zeros:
+                </p>
+                <ul>
+                    <li><strong>E(R) = O(R)</strong> is easy to prove (trivial bound)</li>
+                    <li><strong>E(R) = O(R^(2/3))</strong> can be proven unconditionally</li>
+                    <li><strong>E(R) = O(R^(1/2 + ε))</strong> is equivalent to RH</li>
+                    <li><strong>E(R) = O(R^(1/2))</strong> would be the best possible bound</li>
+                </ul>
+                
+                <h3>Möbius Function and Prime Numbers</h3>
+                <p>
+                    The Möbius function μ(n) encodes information about the prime factorization of n:
+                </p>
+                <ul>
+                    <li>μ(n) = 1 if n is a product of an <strong>even</strong> number of distinct primes</li>
+                    <li>μ(n) = -1 if n is a product of an <strong>odd</strong> number of distinct primes</li>
+                    <li>μ(n) = 0 if n has a squared prime factor</li>
+                </ul>
+                <p>
+                    Its summatory properties are intimately connected to the distribution of primes and 
+                    the zeros of ζ(s). The sum M(N) = Σμ(n) oscillates around zero, and RH implies 
+                    |M(N)| = O(N^(1/2 + ε)).
+                </p>
+                
+                <h3>Euler's Totient Function φ(m)</h3>
+                <p>
+                    The <strong>totient function</strong> φ(m) counts how many integers from 1 to m are coprime to m. 
+                    The ratio φ(m)/m represents the "coprime density" for a specific modulus m. Averaging these ratios 
+                    over all moduli converges to 6/π².
+                </p>
+                <div class="math-formula">
+                    lim (n→∞) (1/n) Σ(m=1 to n) φ(m)/m = 6/π²
+                </div>
+                <p>
+                    Note: While primes have φ(p)/p = (p-1)/p → 1, which is higher than 6/π² ≈ 0.608, primes become 
+                    increasingly sparse, so composite numbers with lower ratios dominate the average.
+                </p>
+            </div>
+            
+            <div class="intro-section">
+                <h2>Ready to Explore?</h2>
+                <p>
+                    Click the <strong>"Explorer"</strong> tab above to begin your journey into the beautiful 
+                    world of coprime lattice points and their connection to one of mathematics' deepest mysteries!
+                </p>
+                
+                <div class="highlight-box">
+                    <strong>Technical Features:</strong>
+                    <ul style="margin: 10px 0 0 0;">
+                        <li>Grid sizes from 1×1 to 10,000×10,000</li>
+                        <li>High-resolution canvas rendering (2K/4K/8K export)</li>
+                        <li>Real-time statistics with disc analysis</li>
+                        <li>Zoom up to 20x with pan controls</li>
+                        <li>Point inspector with polar/modular properties</li>
+                        <li>Multiple color schemes and labeling options</li>
+                        <li>Export to PNG (with legend), SVG, CSV, and JSON</li>
+                        <li>Professional academic styling</li>
+                        <li>Mobile-compatible interface</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #333; text-align: center; color: #888; font-size: 12px;">
+                    <p><strong>Author:</strong> Wessen Getachew (<a href="https://twitter.com/7dview" style="color: #4fc3f7;">@7dview</a>)</p>
+                    <p><strong>Theme:</strong> Classical analytic number theory with modern interactive visualization</p>
+                    <p style="margin-top: 10px;">Built with HTML5 Canvas • Pure JavaScript • No external dependencies</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="explorerTab" class="tab-content active">
         <div class="main-grid">
             <div class="controls-panel">
                 <div class="control-group">
@@ -331,6 +795,47 @@
                         <input type="checkbox" id="showGrid">
                         <label>Show Grid Lines</label>
                     </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Labels</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showLabels">
+                        <label>Show Point Labels</label>
+                    </div>
+                    
+                    <label>Label Type</label>
+                    <select id="labelType" disabled>
+                        <option value="gcd">GCD Value</option>
+                        <option value="fraction">a/b Fraction</option>
+                        <option value="coordinates">Coordinates (a,b)</option>
+                        <option value="reduced">Reduced Fraction</option>
+                    </select>
+                    
+                    <label>Label Threshold (max points to label)</label>
+                    <input type="range" id="labelThreshold" min="10" max="500" value="100" step="10" disabled>
+                    <div class="range-value" id="labelThresholdValue">100</div>
+                    
+                    <label>Font Size</label>
+                    <input type="range" id="labelFontSize" min="8" max="24" value="12" step="1" disabled>
+                    <div class="range-value" id="labelFontSizeValue">12px</div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Zoom & Pan</h3>
+                    <label>Zoom Level</label>
+                    <input type="range" id="zoomLevel" min="1" max="20" value="1" step="0.5">
+                    <div class="range-value" id="zoomLevelValue">1.0x</div>
+                    
+                    <label>Center X (offset)</label>
+                    <input type="range" id="panX" min="-100" max="100" value="0" step="1">
+                    <div class="range-value" id="panXValue">0%</div>
+                    
+                    <label>Center Y (offset)</label>
+                    <input type="range" id="panY" min="-100" max="100" value="0" step="1">
+                    <div class="range-value" id="panYValue">0%</div>
+                    
+                    <button class="secondary" id="resetZoom">Reset Zoom & Pan</button>
                 </div>
                 
                 <div class="control-group">
@@ -469,6 +974,10 @@
                         <span class="stat-label">GCD Values Found:</span>
                         <span class="stat-value" id="gcdCount">-</span>
                     </div>
+                    <div class="stat-row">
+                        <span class="stat-label">μ-Function Range:</span>
+                        <span class="stat-value" id="mobiusRange">-1 to +1</span>
+                    </div>
                 </div>
             </div>
             
@@ -488,6 +997,10 @@
                         <span class="stat-value" id="pointSizeStat">-</span>
                     </div>
                     <div class="stat-row">
+                        <span class="stat-label">Total Pixels:</span>
+                        <span class="stat-value" id="totalPixels">-</span>
+                    </div>
+                    <div class="stat-row">
                         <span class="stat-label">Generation Time:</span>
                         <span class="stat-value" id="genTime">-</span>
                     </div>
@@ -499,12 +1012,465 @@
                         <span class="stat-label">Color Scheme:</span>
                         <span class="stat-value" id="colorSchemeUsed">-</span>
                     </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Zoom Level:</span>
+                        <span class="stat-value" id="zoomStat">1.0x</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; text-align: center;">
+            <div style="color: #4fc3f7; font-size: 16px; font-weight: bold; margin-bottom: 15px;">About This Tool</div>
+            <div style="color: #b0b0b0; font-size: 12px; line-height: 1.8;">
+                <p style="margin-bottom: 10px;">
+                    <strong style="color: #90caf9;">Coprime Lattice & Riemann Hypothesis Explorer</strong> visualizes primitive lattice vectors 
+                    and their deep connections to the Riemann zeta function, Gaussian integers, and the distribution of primes.
+                </p>
+                <p style="margin-bottom: 10px;">
+                    Built using HTML5 Canvas with pure JavaScript. Implements efficient GCD computation via Euclidean algorithm, 
+                    Möbius function evaluation, and real-time statistical analysis of coprime density convergence to 6/π² ≈ 0.607927.
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong style="color: #90caf9;">Key Features:</strong> Zoom & pan, point inspection with polar/modular properties, 
+                    disc analysis for RH error bounds, multiple export formats (PNG with legend, SVG, CSV, JSON), 
+                    customizable labeling and color schemes.
+                </p>
+                <div style="padding-top: 15px; border-top: 1px solid #333;">
+                    <strong style="color: #4fc3f7;">Author:</strong> Wessen Getachew 
+                    (<a href="https://twitter.com/7dview" target="_blank" style="color: #4fc3f7; text-decoration: none;">@7dview</a>) | 
+                    <strong style="color: #4fc3f7;">Theme:</strong> Classical analytic number theory with modern interactive visualization
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <!-- Unit Circle Visualization -->
+        <div id="unitcircleTab" class="tab-content">
+            <div class="main-grid">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <h3>Canvas Size</h3>
+                        <label>Resolution</label>
+                        <select id="uc_resolution">
+                            <option value="1024">1K (1024px)</option>
+                            <option value="2048" selected>2K (2048px)</option>
+                            <option value="3840">4K (3840px)</option>
+                            <option value="7680">8K (7680px)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Unit Circle Parameters</h3>
+                        <label>Modulus m</label>
+                        <input type="number" id="uc_modulus" min="2" max="360" value="12">
+                        
+                        <label>Point Size</label>
+                        <input type="range" id="uc_pointSize" min="2" max="200" value="8">
+                        <div class="range-value" id="uc_pointSizeValue">8px</div>
+                        
+                        <label>Mapping Type</label>
+                        <select id="uc_mapping">
+                            <option value="standard">Standard (2πr/m)</option>
+                            <option value="reverse">Reverse</option>
+                            <option value="complement">Complement</option>
+                            <option value="farey">Farey</option>
+                        </select>
+                        
+                        <label>Color Scheme</label>
+                        <select id="uc_colorScheme">
+                            <option value="uniform">Uniform (All Coprime)</option>
+                            <option value="byResidue">By Residue</option>
+                            <option value="byAngle">By Angle</option>
+                            <option value="rainbow">Rainbow</option>
+                            <option value="spectrum">Spectrum</option>
+                        </select>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="uc_showAngles" checked>
+                            <label>Show Angle Labels</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="uc_showGCDLabels">
+                            <label>Show GCD Labels</label>
+                        </div>
+                        
+                        <label>Label Format</label>
+                        <select id="uc_labelFormat">
+                            <option value="fraction">Fraction (r/m)</option>
+                            <option value="decimal">Decimal</option>
+                            <option value="angle">Angle (degrees)</option>
+                            <option value="residue">Residue Only</option>
+                        </select>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="uc_showConnections">
+                            <label>Show Connections</label>
+                        </div>
+                    </div>
+                    
+                    <button id="uc_generate">Generate Unit Circle</button>
+                    
+                    <div class="control-group">
+                        <h3>Export</h3>
+                        <div class="export-section">
+                            <button class="secondary" id="uc_exportPNG">PNG</button>
+                            <button class="secondary" id="uc_exportSVG">SVG</button>
+                            <button class="secondary" id="uc_exportCSV">CSV</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="uc_canvas" width="2048" height="2048"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nested Rings Visualization -->
+        <div id="ringsTab" class="tab-content">
+            <div class="main-grid">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <h3>Canvas Size</h3>
+                        <label>Resolution</label>
+                        <select id="nr_resolution">
+                            <option value="1024">1K (1024px)</option>
+                            <option value="2048" selected>2K (2048px)</option>
+                            <option value="3840">4K (3840px)</option>
+                            <option value="7680">8K (7680px)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Ring Parameters</h3>
+                        <label>Number of Rings</label>
+                        <input type="range" id="nr_ringCount" min="5" max="200" value="20">
+                        <div class="range-value" id="nr_ringCountValue">20</div>
+                        
+                        <label>Ring Spacing</label>
+                        <input type="range" id="nr_spacing" min="10" max="200" value="40">
+                        <div class="range-value" id="nr_spacingValue">40</div>
+                        
+                        <label>Point Size</label>
+                        <input type="range" id="nr_pointSize" min="2" max="200" value="6">
+                        <div class="range-value" id="nr_pointSizeValue">6px</div>
+                        
+                        <label>Color Scheme</label>
+                        <select id="nr_colorScheme">
+                            <option value="byRing">Color by Ring</option>
+                            <option value="coprime">Coprime Only</option>
+                            <option value="rainbow">Rainbow</option>
+                            <option value="byGCD">Color by GCD</option>
+                            <option value="spectrum">Spectrum</option>
+                        </select>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="nr_showGCDLabels">
+                            <label>Show GCD Labels</label>
+                        </div>
+                        
+                        <label>Label Format</label>
+                        <select id="nr_labelFormat">
+                            <option value="gcd">GCD Value</option>
+                            <option value="fraction">Fraction (r/m)</option>
+                            <option value="modulus">Modulus m</option>
+                            <option value="residue">Residue r</option>
+                        </select>
+                        
+                        <label>Font Size</label>
+                        <input type="range" id="nr_fontSize" min="8" max="48" value="12">
+                        <div class="range-value" id="nr_fontSizeValue">12px</div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="nr_showConnections">
+                            <label>Show Inter-Ring Connections</label>
+                        </div>
+                    </div>
+                    
+                    <button id="nr_generate">Generate Rings</button>
+                    
+                    <div class="control-group">
+                        <h3>Export</h3>
+                        <div class="export-section">
+                            <button class="secondary" id="nr_exportPNG">PNG</button>
+                            <button class="secondary" id="nr_exportSVG">SVG</button>
+                            <button class="secondary" id="nr_exportCSV">CSV</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="nr_canvas" width="2048" height="2048"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Coprime Pairs Grid Visualization -->
+        <div id="pairgridTab" class="tab-content">
+            <div class="main-grid">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <h3>Canvas Size</h3>
+                        <label>Resolution</label>
+                        <select id="pg_resolution">
+                            <option value="1024">1K (1024px)</option>
+                            <option value="2048" selected>2K (2048px)</option>
+                            <option value="3840">4K (3840px)</option>
+                            <option value="7680">8K (7680px)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Grid Parameters</h3>
+                        <label>Grid Size (N × N)</label>
+                        <input type="number" id="pg_gridSize" min="10" max="2000" value="100">
+                        
+                        <label>Pixel Size</label>
+                        <input type="range" id="pg_pixelSize" min="1" max="200" value="10">
+                        <div class="range-value" id="pg_pixelSizeValue">10px</div>
+                        
+                        <label>Brightness Boost</label>
+                        <input type="range" id="pg_brightness" min="50" max="255" value="150">
+                        <div class="range-value" id="pg_brightnessValue">150</div>
+                        
+                        <label>Color Mode</label>
+                        <select id="pg_colorMode">
+                            <option value="greenblue">Green/Blue</option>
+                            <option value="whitered">White/Red</option>
+                            <option value="spectrum">Spectrum by GCD</option>
+                            <option value="rainbow">Rainbow by GCD</option>
+                            <option value="heatmap">Heatmap</option>
+                        </select>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="pg_showGCDLabels">
+                            <label>Show GCD Labels</label>
+                        </div>
+                        
+                        <label>Label Format</label>
+                        <select id="pg_labelFormat">
+                            <option value="gcd">GCD Value</option>
+                            <option value="coordinates">Coordinates (a,b)</option>
+                            <option value="fraction">Fraction a/b</option>
+                            <option value="coprime">Coprime Status</option>
+                        </select>
+                        
+                        <label>Label Threshold (max labels)</label>
+                        <input type="range" id="pg_labelThreshold" min="10" max="500" value="100">
+                        <div class="range-value" id="pg_labelThresholdValue">100</div>
+                        
+                        <label>Font Size</label>
+                        <input type="range" id="pg_fontSize" min="6" max="48" value="10">
+                        <div class="range-value" id="pg_fontSizeValue">10px</div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="pg_showStats" checked>
+                            <label>Show Density Statistics</label>
+                        </div>
+                    </div>
+                    
+                    <button id="pg_generate">Generate Pairs Grid</button>
+                    
+                    <div class="control-group">
+                        <h3>Export</h3>
+                        <div class="export-section">
+                            <button class="secondary" id="pg_exportPNG">PNG</button>
+                            <button class="secondary" id="pg_exportSVG">SVG</button>
+                            <button class="secondary" id="pg_exportCSV">CSV</button>
+                        </div>
+                    </div>
+                    
+                    <div id="pg_stats" class="stat-card" style="margin-top: 20px;">
+                        <h3>Density Statistics</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Coprime Density:</span>
+                            <span class="stat-value" id="pg_density">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Theoretical:</span>
+                            <span class="stat-value">0.607927</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Error:</span>
+                            <span class="stat-value" id="pg_error">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="pg_canvas" width="2048" height="2048"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Totient Ratio Chart Visualization -->
+        <div id="totientTab" class="tab-content">
+            <div class="main-grid">
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <h3>Canvas Size</h3>
+                        <label>Resolution</label>
+                        <select id="tr_resolution">
+                            <option value="1024x768">1K (1024×768)</option>
+                            <option value="2048x1536" selected>2K (2048×1536)</option>
+                            <option value="3840x2160">4K (3840×2160)</option>
+                            <option value="7680x4320">8K (7680×4320)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Chart Parameters</h3>
+                        <label>Maximum Modulus</label>
+                        <input type="number" id="tr_maxMod" min="10" max="5000" value="100">
+                        
+                        <label>Point Size</label>
+                        <input type="range" id="tr_pointSize" min="1" max="200" value="4">
+                        <div class="range-value" id="tr_pointSizeValue">4px</div>
+                        
+                        <label>Color Scheme</label>
+                        <select id="tr_colorScheme">
+                            <option value="standard">Standard Blue</option>
+                            <option value="primeHighlight">Highlight Primes</option>
+                            <option value="byGCD">Color by GCD Pattern</option>
+                            <option value="rainbow">Rainbow</option>
+                            <option value="heatmap">Heatmap by Ratio</option>
+                        </select>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tr_showReference" checked>
+                            <label>Show 6/π² Reference Line</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tr_showGCDLabels">
+                            <label>Show Point Labels</label>
+                        </div>
+                        
+                        <label>Label Format</label>
+                        <select id="tr_labelFormat">
+                            <option value="modulus">Modulus m</option>
+                            <option value="ratio">Ratio φ(m)/m</option>
+                            <option value="phi">φ(m) Value</option>
+                            <option value="both">m: φ(m)/m</option>
+                        </select>
+                        
+                        <label>Label Threshold (max labels)</label>
+                        <input type="range" id="tr_labelThreshold" min="10" max="500" value="50">
+                        <div class="range-value" id="tr_labelThresholdValue">50</div>
+                        
+                        <label>Font Size</label>
+                        <input type="range" id="tr_fontSize" min="6" max="48" value="11">
+                        <div class="range-value" id="tr_fontSizeValue">11px</div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tr_highlightPrimes" checked>
+                            <label>Highlight Primes</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tr_showFarey">
+                            <label>Show Farey Connections</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tr_showAverage" checked>
+                            <label>Show Running Average</label>
+                        </div>
+                    </div>
+                    
+                    <button id="tr_generate">Generate Chart</button>
+                    
+                    <div class="control-group">
+                        <h3>Export</h3>
+                        <div class="export-section">
+                            <button class="secondary" id="tr_exportPNG">PNG</button>
+                            <button class="secondary" id="tr_exportSVG">SVG</button>
+                            <button class="secondary" id="tr_exportCSV">CSV</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>Convergence Statistics</h3>
+                        <div class="stat-row">
+                            <span class="stat-label">Average φ(m)/m:</span>
+                            <span class="stat-value" id="tr_avgRatio">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Target (6/π²):</span>
+                            <span class="stat-value">0.607927</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Convergence Error:</span>
+                            <span class="stat-value" id="tr_convError">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="tr_canvas" width="2048" height="1536"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 20px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; text-align: center;">
+            <div style="color: #4fc3f7; font-size: 16px; font-weight: bold; margin-bottom: 15px;">About This Tool</div>
+            <div style="color: #b0b0b0; font-size: 12px; line-height: 1.8;">
+                <p style="margin-bottom: 10px;">
+                    <strong style="color: #90caf9;">Coprime Lattice & Riemann Hypothesis Explorer</strong> visualizes primitive lattice vectors 
+                    and their deep connections to the Riemann zeta function, Gaussian integers, and the distribution of primes.
+                </p>
+                <p style="margin-bottom: 10px;">
+                    Built using HTML5 Canvas with pure JavaScript. Implements efficient GCD computation via Euclidean algorithm, 
+                    Möbius function evaluation, and real-time statistical analysis of coprime density convergence to 6/π² ≈ 0.607927.
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong style="color: #90caf9;">Key Features:</strong> Zoom & pan, point inspection with polar/modular properties, 
+                    disc analysis for RH error bounds, multiple export formats (PNG with legend, SVG, CSV, JSON), 
+                    customizable labeling and color schemes.
+                </p>
+                <div style="padding-top: 15px; border-top: 1px solid #333;">
+                    <strong style="color: #4fc3f7;">Author:</strong> Wessen Getachew 
+                    (<a href="https://twitter.com/7dview" target="_blank" style="color: #4fc3f7; text-decoration: none;">@7dview</a>) | 
+                    <strong style="color: #4fc3f7;">Theme:</strong> Classical analytic number theory with modern interactive visualization
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update active content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                if (targetTab === 'intro') {
+                    document.getElementById('introTab').classList.add('active');
+                } else if (targetTab === 'explorer') {
+                    document.getElementById('explorerTab').classList.add('active');
+                } else if (targetTab === 'unitcircle') {
+                    document.getElementById('unitcircleTab').classList.add('active');
+                } else if (targetTab === 'rings') {
+                    document.getElementById('ringsTab').classList.add('active');
+                } else if (targetTab === 'pairgrid') {
+                    document.getElementById('pairgridTab').classList.add('active');
+                } else if (targetTab === 'totient') {
+                    document.getElementById('totientTab').classList.add('active');
+                }
+            });
+        });
+        
         // GCD function using Euclidean algorithm
         function gcd(a, b) {
             a = Math.abs(a);
@@ -586,6 +1552,7 @@
         let latticeGrid = null; // For fast lookup by coordinates
         let currentN = 0;
         let currentPixelsPerUnit = 0;
+        let baseCanvas = null; // Store the base visualization without zoom/labels
         
         // UI Elements
         const canvas = document.getElementById('canvas');
@@ -602,6 +1569,22 @@
         const resolutionSelect = document.getElementById('resolution');
         const colorSchemeSelect = document.getElementById('colorScheme');
         
+        // Label controls
+        const showLabelsCheck = document.getElementById('showLabels');
+        const labelTypeSelect = document.getElementById('labelType');
+        const labelThresholdSlider = document.getElementById('labelThreshold');
+        const labelThresholdValue = document.getElementById('labelThresholdValue');
+        const labelFontSizeSlider = document.getElementById('labelFontSize');
+        const labelFontSizeValue = document.getElementById('labelFontSizeValue');
+        
+        // Zoom controls
+        const zoomLevelSlider = document.getElementById('zoomLevel');
+        const zoomLevelValue = document.getElementById('zoomLevelValue');
+        const panXSlider = document.getElementById('panX');
+        const panXValue = document.getElementById('panXValue');
+        const panYSlider = document.getElementById('panY');
+        const panYValue = document.getElementById('panYValue');
+        
         // Sync input and slider
         gridSizeSlider.oninput = () => {
             gridSizeValue.textContent = gridSizeSlider.value;
@@ -616,8 +1599,52 @@
         pointSizeSlider.oninput = () => pointSizeValue.textContent = pointSizeSlider.value;
         circleRadiusSlider.oninput = () => circleRadiusValue.textContent = circleRadiusSlider.value + '%';
         
+        labelThresholdSlider.oninput = () => {
+            labelThresholdValue.textContent = labelThresholdSlider.value;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        labelFontSizeSlider.oninput = () => {
+            labelFontSizeValue.textContent = labelFontSizeSlider.value + 'px';
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        zoomLevelSlider.oninput = () => {
+            zoomLevelValue.textContent = parseFloat(zoomLevelSlider.value).toFixed(1) + 'x';
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        panXSlider.oninput = () => {
+            panXValue.textContent = panXSlider.value + '%';
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        panYSlider.oninput = () => {
+            panYValue.textContent = panYSlider.value + '%';
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
         showCircleCheck.onchange = () => {
             circleRadiusSlider.disabled = !showCircleCheck.checked;
+        };
+        
+        showLabelsCheck.onchange = () => {
+            const enabled = showLabelsCheck.checked;
+            labelTypeSelect.disabled = !enabled;
+            labelThresholdSlider.disabled = !enabled;
+            labelFontSizeSlider.disabled = !enabled;
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        labelTypeSelect.onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        document.getElementById('resetZoom').onclick = () => {
+            zoomLevelSlider.value = 1;
+            panXSlider.value = 0;
+            panYSlider.value = 0;
+            zoomLevelValue.textContent = '1.0x';
+            panXValue.textContent = '0%';
+            panYValue.textContent = '0%';
+            if (baseCanvas) redrawWithZoomAndLabels();
         };
         
         // Generate visualization
@@ -821,6 +1848,135 @@
             
             loading.style.display = 'none';
             progressBar.style.display = 'none';
+            
+            // Save base canvas for zoom/label operations
+            baseCanvas = document.createElement('canvas');
+            baseCanvas.width = canvas.width;
+            baseCanvas.height = canvas.height;
+            baseCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        }
+        
+        function redrawWithZoomAndLabels() {
+            if (!baseCanvas) return;
+            
+            const zoom = parseFloat(zoomLevelSlider.value);
+            const panXPct = parseFloat(panXSlider.value) / 100;
+            const panYPct = parseFloat(panYSlider.value) / 100;
+            
+            // Clear and setup canvas
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Apply zoom and pan transformations
+            ctx.save();
+            
+            // Translate to center, apply zoom, then pan
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(zoom, zoom);
+            ctx.translate(-canvas.width / 2 - (panXPct * canvas.width), -canvas.height / 2 - (panYPct * canvas.height));
+            
+            // Draw the base visualization
+            ctx.drawImage(baseCanvas, 0, 0);
+            
+            ctx.restore();
+            
+            // Add labels if enabled
+            if (showLabelsCheck.checked) {
+                addLabels(zoom, panXPct, panYPct);
+            }
+        }
+        
+        function addLabels(zoom, panXPct, panYPct) {
+            const labelType = labelTypeSelect.value;
+            const threshold = parseInt(labelThresholdSlider.value);
+            const fontSize = parseInt(labelFontSizeSlider.value);
+            
+            if (!latticeData || latticeData.length === 0) return;
+            
+            // Determine which points are visible and should be labeled
+            const centerX = currentN / 2;
+            const centerY = currentN / 2;
+            
+            // Calculate visible region based on zoom and pan
+            const visibleWidth = currentN / zoom;
+            const visibleHeight = currentN / zoom;
+            const viewCenterX = centerX + panXPct * currentN;
+            const viewCenterY = centerY + panYPct * currentN;
+            
+            const minA = Math.max(0, Math.floor(viewCenterX - visibleWidth / 2));
+            const maxA = Math.min(currentN - 1, Math.ceil(viewCenterX + visibleWidth / 2));
+            const minB = Math.max(0, Math.floor(viewCenterY - visibleHeight / 2));
+            const maxB = Math.min(currentN - 1, Math.ceil(viewCenterY + visibleHeight / 2));
+            
+            // Filter points in visible region
+            let visiblePoints = [];
+            for (let a = minA; a <= maxA; a++) {
+                for (let b = minB; b <= maxB; b++) {
+                    const key = `${a},${b}`;
+                    if (latticeGrid[key]) {
+                        visiblePoints.push(latticeGrid[key]);
+                    }
+                }
+            }
+            
+            // Limit to threshold
+            if (visiblePoints.length > threshold) {
+                // Sample evenly or prioritize coprime points
+                const step = Math.ceil(visiblePoints.length / threshold);
+                visiblePoints = visiblePoints.filter((_, idx) => idx % step === 0);
+            }
+            
+            // Draw labels
+            ctx.save();
+            ctx.font = `${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            visiblePoints.forEach(point => {
+                const {a, b, gcd: gcdVal} = point;
+                
+                let labelText = '';
+                switch (labelType) {
+                    case 'gcd':
+                        labelText = gcdVal.toString();
+                        break;
+                    case 'fraction':
+                        labelText = b === 0 ? '∞' : `${a}/${b}`;
+                        break;
+                    case 'coordinates':
+                        labelText = `${a},${b}`;
+                        break;
+                    case 'reduced':
+                        const frac = simplifyFraction(a, b);
+                        labelText = `${frac.num}/${frac.den}`;
+                        break;
+                }
+                
+                // Calculate screen position with zoom and pan
+                const x = a * currentPixelsPerUnit;
+                const y = (currentN - b - 1) * currentPixelsPerUnit;
+                
+                // Apply transformations
+                const screenX = (x - canvas.width / 2 - (panXPct * canvas.width)) * zoom + canvas.width / 2;
+                const screenY = (y - canvas.height / 2 - (panYPct * canvas.height)) * zoom + canvas.height / 2;
+                
+                // Draw label with background
+                const metrics = ctx.measureText(labelText);
+                const padding = 3;
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(
+                    screenX - metrics.width / 2 - padding,
+                    screenY - fontSize / 2 - padding,
+                    metrics.width + padding * 2,
+                    fontSize + padding * 2
+                );
+                
+                ctx.fillStyle = point.coprime ? '#70ff70' : '#4fc3f7';
+                ctx.fillText(labelText, screenX, screenY);
+            });
+            
+            ctx.restore();
         }
         
         // Point inspection on click
@@ -834,9 +1990,18 @@
             const canvasX = (event.clientX - rect.left) * scaleX;
             const canvasY = (event.clientY - rect.top) * scaleY;
             
+            // Account for zoom and pan
+            const zoom = parseFloat(zoomLevelSlider.value);
+            const panXPct = parseFloat(panXSlider.value) / 100;
+            const panYPct = parseFloat(panYSlider.value) / 100;
+            
+            // Reverse transformation
+            const unzoomedX = (canvasX - canvas.width / 2) / zoom + canvas.width / 2 + (panXPct * canvas.width);
+            const unzoomedY = (canvasY - canvas.height / 2) / zoom + canvas.height / 2 + (panYPct * canvas.height);
+            
             // Convert to lattice coordinates
-            const a = Math.floor(canvasX / currentPixelsPerUnit);
-            const b = currentN - Math.floor(canvasY / currentPixelsPerUnit) - 1;
+            const a = Math.floor(unzoomedX / currentPixelsPerUnit);
+            const b = currentN - Math.floor(unzoomedY / currentPixelsPerUnit) - 1;
             
             // Check bounds
             if (a < 0 || a >= currentN || b < 0 || b >= currentN) {
@@ -949,18 +2114,26 @@
             const highlight = document.getElementById('pointHighlight');
             const rect = canvas.getBoundingClientRect();
             
+            const zoom = parseFloat(zoomLevelSlider.value);
+            const panXPct = parseFloat(panXSlider.value) / 100;
+            const panYPct = parseFloat(panYSlider.value) / 100;
+            
             const x = a * currentPixelsPerUnit;
             const y = (currentN - b - 1) * currentPixelsPerUnit;
             
+            // Apply zoom and pan to highlight position
+            const screenX = (x - canvas.width / 2 - (panXPct * canvas.width)) * zoom + canvas.width / 2;
+            const screenY = (y - canvas.height / 2 - (panYPct * canvas.height)) * zoom + canvas.height / 2;
+            
             // Scale to display size
             const displayScale = rect.width / canvas.width;
-            const displayX = x * displayScale;
-            const displayY = y * displayScale;
+            const displayX = screenX * displayScale;
+            const displayY = screenY * displayScale;
             
             highlight.style.left = displayX + 'px';
             highlight.style.top = displayY + 'px';
-            highlight.style.width = Math.max(20, currentPixelsPerUnit * displayScale * 2) + 'px';
-            highlight.style.height = Math.max(20, currentPixelsPerUnit * displayScale * 2) + 'px';
+            highlight.style.width = Math.max(20, currentPixelsPerUnit * displayScale * zoom * 2) + 'px';
+            highlight.style.height = Math.max(20, currentPixelsPerUnit * displayScale * zoom * 2) + 'px';
             highlight.style.display = 'block';
             
             // Fade out after 2 seconds
@@ -1011,9 +2184,11 @@
             document.getElementById('dimensions').textContent = `${s.N} × ${s.N}`;
             document.getElementById('canvasSize').textContent = `${s.resolution} × ${s.resolution}`;
             document.getElementById('pointSizeStat').textContent = s.pointSize + 'px';
+            document.getElementById('totalPixels').textContent = (s.resolution * s.resolution).toLocaleString();
             document.getElementById('genTime').textContent = s.genTime + 's';
             document.getElementById('memUsage').textContent = ((s.totalPoints * 16) / (1024 * 1024)).toFixed(2) + ' MB';
             document.getElementById('colorSchemeUsed').textContent = s.colorScheme;
+            document.getElementById('zoomStat').textContent = parseFloat(zoomLevelSlider.value).toFixed(1) + 'x';
         }
         
         // Export functions
@@ -1208,4 +2383,4 @@
         };
     </script>
 </body>
-</html>
+                        </html>
