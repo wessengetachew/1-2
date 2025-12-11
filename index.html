@@ -82,6 +82,10 @@
             margin-bottom: 10px;
         }
         
+        input[type="number"] {
+            margin-bottom: 5px;
+        }
+        
         input[type="range"] {
             padding: 0;
         }
@@ -135,6 +139,7 @@
             border-radius: 4px;
             max-width: 100%;
             height: auto;
+            cursor: crosshair;
         }
         
         .stats-grid {
@@ -157,6 +162,28 @@
             margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        
+        .point-inspector {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 4px;
+            border: 2px solid #4fc3f7;
+            margin-bottom: 15px;
+        }
+        
+        .point-inspector.empty {
+            border-color: #444;
+            opacity: 0.5;
+        }
+        
+        .point-highlight {
+            position: absolute;
+            pointer-events: none;
+            border: 3px solid #ffff00;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
         }
         
         .stat-row {
@@ -248,9 +275,19 @@
         <div class="main-grid">
             <div class="controls-panel">
                 <div class="control-group">
+                    <h3>Point Inspector</h3>
+                    <div id="pointInspector" class="point-inspector empty">
+                        <div style="text-align: center; color: #888; font-size: 12px;">
+                            Click on a point to inspect its properties
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
                     <h3>Grid Parameters</h3>
                     <label>Grid Size (N × N)</label>
-                    <input type="range" id="gridSize" min="50" max="2000" value="500" step="50">
+                    <input type="number" id="gridSizeInput" min="1" max="10000" value="500" step="1">
+                    <input type="range" id="gridSize" min="1" max="10000" value="500" step="1">
                     <div class="range-value" id="gridSizeValue">500</div>
                     
                     <label>Canvas Resolution</label>
@@ -333,7 +370,10 @@
             </div>
             
             <div class="canvas-container">
-                <canvas id="canvas"></canvas>
+                <div style="position: relative; display: inline-block;">
+                    <canvas id="canvas"></canvas>
+                    <div id="pointHighlight" class="point-highlight"></div>
+                </div>
             </div>
         </div>
         
@@ -477,6 +517,26 @@
             return a;
         }
         
+        // Simplify fraction
+        function simplifyFraction(a, b) {
+            if (b === 0) return {num: a, den: 1};
+            const g = gcd(a, b);
+            return {num: a / g, den: b / g};
+        }
+        
+        // Calculate angle in degrees
+        function angleDegrees(a, b) {
+            if (a === 0 && b === 0) return 0;
+            const rad = Math.atan2(b, a);
+            const deg = rad * (180 / Math.PI);
+            return deg < 0 ? deg + 360 : deg;
+        }
+        
+        // Calculate polar radius
+        function polarRadius(a, b) {
+            return Math.sqrt(a * a + b * b);
+        }
+        
         // Möbius function
         function mobius(n) {
             if (n === 1) return 1;
@@ -523,12 +583,16 @@
         // Global state
         let latticeData = null;
         let currentStats = null;
+        let latticeGrid = null; // For fast lookup by coordinates
+        let currentN = 0;
+        let currentPixelsPerUnit = 0;
         
         // UI Elements
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
         const gridSizeSlider = document.getElementById('gridSize');
+        const gridSizeInput = document.getElementById('gridSizeInput');
         const gridSizeValue = document.getElementById('gridSizeValue');
         const pointSizeSlider = document.getElementById('pointSize');
         const pointSizeValue = document.getElementById('pointSizeValue');
@@ -538,8 +602,17 @@
         const resolutionSelect = document.getElementById('resolution');
         const colorSchemeSelect = document.getElementById('colorScheme');
         
-        // Update range displays
-        gridSizeSlider.oninput = () => gridSizeValue.textContent = gridSizeSlider.value;
+        // Sync input and slider
+        gridSizeSlider.oninput = () => {
+            gridSizeValue.textContent = gridSizeSlider.value;
+            gridSizeInput.value = gridSizeSlider.value;
+        };
+        gridSizeInput.oninput = () => {
+            const val = Math.max(1, Math.min(10000, parseInt(gridSizeInput.value) || 1));
+            gridSizeInput.value = val;
+            gridSizeSlider.value = val;
+            gridSizeValue.textContent = val;
+        };
         pointSizeSlider.oninput = () => pointSizeValue.textContent = pointSizeSlider.value;
         circleRadiusSlider.oninput = () => circleRadiusValue.textContent = circleRadiusSlider.value + '%';
         
@@ -582,9 +655,12 @@
             
             // Calculate scaling
             const pixelsPerUnit = resolution / N;
+            currentN = N;
+            currentPixelsPerUnit = pixelsPerUnit;
             
             // Data structures
             latticeData = [];
+            latticeGrid = {}; // For fast coordinate lookup
             let coprimeCount = 0;
             let gcdDistribution = {};
             let mobiusSum = 0;
@@ -603,7 +679,11 @@
                     const gcdVal = gcd(a, b);
                     const isCoprime = gcdVal === 1;
                     
-                    latticeData.push({a, b, gcd: gcdVal, coprime: isCoprime});
+                    const pointData = {a, b, gcd: gcdVal, coprime: isCoprime};
+                    latticeData.push(pointData);
+                    
+                    // Store in grid for fast lookup
+                    latticeGrid[`${a},${b}`] = pointData;
                     
                     if (isCoprime) coprimeCount++;
                     
@@ -743,6 +823,152 @@
             progressBar.style.display = 'none';
         }
         
+        // Point inspection on click
+        canvas.addEventListener('click', (event) => {
+            if (!latticeGrid || currentN === 0) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const canvasX = (event.clientX - rect.left) * scaleX;
+            const canvasY = (event.clientY - rect.top) * scaleY;
+            
+            // Convert to lattice coordinates
+            const a = Math.floor(canvasX / currentPixelsPerUnit);
+            const b = currentN - Math.floor(canvasY / currentPixelsPerUnit) - 1;
+            
+            // Check bounds
+            if (a < 0 || a >= currentN || b < 0 || b >= currentN) {
+                return;
+            }
+            
+            // Get point data
+            const key = `${a},${b}`;
+            const point = latticeGrid[key];
+            
+            if (point) {
+                displayPointInfo(point);
+                highlightPoint(a, b);
+            }
+        });
+        
+        function displayPointInfo(point) {
+            const {a, b, gcd: gcdVal, coprime} = point;
+            
+            // Calculate properties
+            const frac = simplifyFraction(a, b);
+            const r = polarRadius(a, b);
+            const theta = angleDegrees(a, b);
+            const thetaRad = theta * (Math.PI / 180);
+            
+            // Modular properties
+            const mod2_a = a % 2;
+            const mod2_b = b % 2;
+            const mod3_a = a % 3;
+            const mod3_b = b % 3;
+            const mod5_a = a % 5;
+            const mod5_b = b % 5;
+            
+            const inspector = document.getElementById('pointInspector');
+            inspector.className = 'point-inspector';
+            
+            inspector.innerHTML = `
+                <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #444;">
+                    <div style="font-size: 16px; font-weight: bold; color: #4fc3f7;">Point (${a}, ${b})</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                    <div>
+                        <div style="color: #888;">Cartesian (a, b)</div>
+                        <div style="color: #4fc3f7; font-weight: bold;">(${a}, ${b})</div>
+                    </div>
+                    <div>
+                        <div style="color: #888;">GCD(a, b)</div>
+                        <div style="color: ${coprime ? '#70ff70' : '#ff7070'}; font-weight: bold;">${gcdVal} ${coprime ? '★' : ''}</div>
+                    </div>
+                    
+                    <div>
+                        <div style="color: #888;">Coprime</div>
+                        <div style="color: ${coprime ? '#70ff70' : '#ff7070'}; font-weight: bold;">${coprime ? 'Yes' : 'No'}</div>
+                    </div>
+                    <div>
+                        <div style="color: #888;">Simplified Ratio</div>
+                        <div style="color: #4fc3f7; font-weight: bold;">${frac.num}/${frac.den}</div>
+                    </div>
+                    
+                    <div>
+                        <div style="color: #888;">Radius r</div>
+                        <div style="color: #4fc3f7; font-weight: bold;">${r.toFixed(4)}</div>
+                    </div>
+                    <div>
+                        <div style="color: #888;">Angle θ</div>
+                        <div style="color: #4fc3f7; font-weight: bold;">${theta.toFixed(2)}°</div>
+                    </div>
+                    
+                    <div>
+                        <div style="color: #888;">θ (radians)</div>
+                        <div style="color: #4fc3f7; font-weight: bold;">${thetaRad.toFixed(4)}</div>
+                    </div>
+                    <div>
+                        <div style="color: #888;">Polar (r, θ)</div>
+                        <div style="color: #4fc3f7; font-weight: bold;">(${r.toFixed(2)}, ${theta.toFixed(1)}°)</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #444;">
+                    <div style="color: #888; font-size: 11px; margin-bottom: 6px;">Modular Properties</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 11px;">
+                        <div>
+                            <div style="color: #888;">mod 2</div>
+                            <div style="color: #90caf9;">(${mod2_a}, ${mod2_b})</div>
+                        </div>
+                        <div>
+                            <div style="color: #888;">mod 3</div>
+                            <div style="color: #90caf9;">(${mod3_a}, ${mod3_b})</div>
+                        </div>
+                        <div>
+                            <div style="color: #888;">mod 5</div>
+                            <div style="color: #90caf9;">(${mod5_a}, ${mod5_b})</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #444;">
+                    <div style="color: #888; font-size: 11px; margin-bottom: 6px;">Additional Info</div>
+                    <div style="font-size: 11px; line-height: 1.6;">
+                        <div style="color: #b0b0b0;">a² + b² = <span style="color: #4fc3f7;">${a*a + b*b}</span></div>
+                        <div style="color: #b0b0b0;">Distance from origin: <span style="color: #4fc3f7;">${r.toFixed(4)}</span></div>
+                        ${gcdVal > 1 ? `<div style="color: #b0b0b0;">Reduced point: <span style="color: #4fc3f7;">(${frac.num}, ${frac.den})</span></div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function highlightPoint(a, b) {
+            const highlight = document.getElementById('pointHighlight');
+            const rect = canvas.getBoundingClientRect();
+            
+            const x = a * currentPixelsPerUnit;
+            const y = (currentN - b - 1) * currentPixelsPerUnit;
+            
+            // Scale to display size
+            const displayScale = rect.width / canvas.width;
+            const displayX = x * displayScale;
+            const displayY = y * displayScale;
+            
+            highlight.style.left = displayX + 'px';
+            highlight.style.top = displayY + 'px';
+            highlight.style.width = Math.max(20, currentPixelsPerUnit * displayScale * 2) + 'px';
+            highlight.style.height = Math.max(20, currentPixelsPerUnit * displayScale * 2) + 'px';
+            highlight.style.display = 'block';
+            
+            // Fade out after 2 seconds
+            setTimeout(() => {
+                highlight.style.display = 'none';
+            }, 2000);
+        }
+        
         function updateStatistics() {
             if (!currentStats) return;
             
@@ -792,9 +1018,141 @@
         
         // Export functions
         document.getElementById('exportPNG').onclick = () => {
+            // Create a temporary canvas with stats overlay
+            const exportCanvas = document.createElement('canvas');
+            const exportCtx = exportCanvas.getContext('2d');
+            
+            // Set dimensions (visualization + legend area)
+            const vizSize = canvas.width;
+            const legendWidth = 800;
+            exportCanvas.width = vizSize + legendWidth;
+            exportCanvas.height = vizSize;
+            
+            // Draw the visualization
+            exportCtx.drawImage(canvas, 0, 0);
+            
+            // Draw legend background
+            exportCtx.fillStyle = '#1a1a1a';
+            exportCtx.fillRect(vizSize, 0, legendWidth, vizSize);
+            
+            // Draw legend content
+            exportCtx.fillStyle = '#e0e0e0';
+            exportCtx.font = 'bold 24px Arial';
+            exportCtx.fillText('Statistics', vizSize + 20, 40);
+            
+            let yPos = 80;
+            const lineHeight = 28;
+            const sectionGap = 40;
+            exportCtx.font = '16px Arial';
+            
+            // Global Statistics
+            exportCtx.fillStyle = '#4fc3f7';
+            exportCtx.font = 'bold 18px Arial';
+            exportCtx.fillText('GLOBAL STATISTICS', vizSize + 20, yPos);
+            yPos += 30;
+            
+            exportCtx.font = '15px Arial';
+            exportCtx.fillStyle = '#b0b0b0';
+            const globalStats = [
+                ['Total Points:', currentStats.totalPoints.toLocaleString()],
+                ['Coprime Points:', currentStats.coprimeCount.toLocaleString()],
+                ['Non-Coprime Points:', (currentStats.totalPoints - currentStats.coprimeCount).toLocaleString()],
+                ['Coprime Density:', currentStats.coprimeDensity.toFixed(6)],
+                ['Theoretical (6/π²):', '0.607927'],
+                ['Relative Error:', currentStats.relativeError + '%']
+            ];
+            
+            globalStats.forEach(([label, value]) => {
+                exportCtx.fillStyle = '#b0b0b0';
+                exportCtx.fillText(label, vizSize + 20, yPos);
+                exportCtx.fillStyle = '#4fc3f7';
+                exportCtx.fillText(value, vizSize + 400, yPos);
+                yPos += lineHeight;
+            });
+            
+            yPos += sectionGap;
+            
+            // Disc Analysis
+            exportCtx.fillStyle = '#4fc3f7';
+            exportCtx.font = 'bold 18px Arial';
+            exportCtx.fillText('DISC ANALYSIS (RADIUS R)', vizSize + 20, yPos);
+            yPos += 30;
+            
+            exportCtx.font = '15px Arial';
+            const discStats = [
+                ['Radius R:', currentStats.R.toFixed(2)],
+                ['Points in Disc:', currentStats.discTotal.toLocaleString()],
+                ['Coprime in Disc V(R):', currentStats.discCoprime.toLocaleString()],
+                ['Expected (6/π²)πR²:', currentStats.discExpected.toFixed(2)],
+                ['Error E(R):', currentStats.discError.toFixed(2)],
+                ['|E(R)|/R^(1/2):', currentStats.errorRatio.toFixed(4)],
+                ['log₁₀|E(R)|:', Math.log10(Math.abs(currentStats.discError)).toFixed(4)]
+            ];
+            
+            discStats.forEach(([label, value]) => {
+                exportCtx.fillStyle = '#b0b0b0';
+                exportCtx.fillText(label, vizSize + 20, yPos);
+                exportCtx.fillStyle = '#4fc3f7';
+                exportCtx.fillText(value, vizSize + 400, yPos);
+                yPos += lineHeight;
+            });
+            
+            yPos += sectionGap;
+            
+            // Möbius Analysis
+            exportCtx.fillStyle = '#4fc3f7';
+            exportCtx.font = 'bold 18px Arial';
+            exportCtx.fillText('MÖBIUS FUNCTION', vizSize + 20, yPos);
+            yPos += 30;
+            
+            exportCtx.font = '15px Arial';
+            const mobiusStats = [
+                ['M(N) = Σμ(n):', currentStats.mobiusSum.toString()],
+                ['|M(N)|/N^(1/2):', (Math.abs(currentStats.mobiusSum) / Math.sqrt(currentStats.N)).toFixed(4)],
+                ['Σμ(n)/n:', currentStats.mobiusOverN.toFixed(6)],
+                ['Σμ(n)/n²:', currentStats.mobiusOverN2.toFixed(6)],
+                ['Expected (1/ζ(2)):', '0.607927'],
+                ['GCD Values Found:', Object.keys(currentStats.gcdDistribution).length.toString()]
+            ];
+            
+            mobiusStats.forEach(([label, value]) => {
+                exportCtx.fillStyle = '#b0b0b0';
+                exportCtx.fillText(label, vizSize + 20, yPos);
+                exportCtx.fillStyle = '#4fc3f7';
+                exportCtx.fillText(value, vizSize + 400, yPos);
+                yPos += lineHeight;
+            });
+            
+            yPos += sectionGap;
+            
+            // Computational Details
+            exportCtx.fillStyle = '#4fc3f7';
+            exportCtx.font = 'bold 18px Arial';
+            exportCtx.fillText('COMPUTATIONAL DETAILS', vizSize + 20, yPos);
+            yPos += 30;
+            
+            exportCtx.font = '15px Arial';
+            const computeStats = [
+                ['Grid Dimensions:', `${currentStats.N} × ${currentStats.N}`],
+                ['Canvas Size:', `${currentStats.resolution} × ${currentStats.resolution}`],
+                ['Point Size:', currentStats.pointSize + 'px'],
+                ['Generation Time:', currentStats.genTime + 's'],
+                ['Memory (approx):', ((currentStats.totalPoints * 16) / (1024 * 1024)).toFixed(2) + ' MB'],
+                ['Color Scheme:', currentStats.colorScheme]
+            ];
+            
+            computeStats.forEach(([label, value]) => {
+                exportCtx.fillStyle = '#b0b0b0';
+                exportCtx.fillText(label, vizSize + 20, yPos);
+                exportCtx.fillStyle = '#4fc3f7';
+                exportCtx.fillText(value, vizSize + 400, yPos);
+                yPos += lineHeight;
+            });
+            
+            // Export
             const link = document.createElement('a');
             link.download = `coprime_lattice_${currentStats.N}x${currentStats.N}_${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
+            link.href = exportCanvas.toDataURL('image/png');
             link.click();
         };
         
@@ -850,4 +1208,4 @@
         };
     </script>
 </body>
-    </html>
+</html>
