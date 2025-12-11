@@ -274,14 +274,14 @@
         }
         
         .tab {
-            padding: 10px 16px;
+            padding: 12px 24px;
             background: #1a1a1a;
             border: 1px solid #333;
             border-bottom: none;
             border-radius: 8px 8px 0 0;
             color: #b0b0b0;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.3s;
         }
@@ -406,11 +406,7 @@
         
         <div class="tabs">
             <div class="tab" data-tab="intro">Introduction</div>
-            <div class="tab active" data-tab="explorer">Primitive Lattice</div>
-            <div class="tab" data-tab="unitcircle">Unit Circle</div>
-            <div class="tab" data-tab="rings">Nested Rings</div>
-            <div class="tab" data-tab="pairgrid">Pairs Grid</div>
-            <div class="tab" data-tab="totient">φ(m)/m Chart</div>
+            <div class="tab active" data-tab="explorer">Explorer</div>
         </div>
         
         <div id="introTab" class="tab-content">
@@ -982,44 +978,6 @@
             </div>
             
             <div class="stat-card">
-                <h3>Prime Counting Function</h3>
-                <div id="primeStats">
-                    <div class="stat-row">
-                        <span class="stat-label">π(N) - Primes ≤ N:</span>
-                        <span class="stat-value" id="primeCount">-</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">N / ln(N):</span>
-                        <span class="stat-value" id="primeApprox">-</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">π(N) / (N/ln(N)):</span>
-                        <span class="stat-value" id="primeRatio">-</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Li(N) Approximation:</span>
-                        <span class="stat-value" id="primeLogInt">-</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">π(N) - Li(N):</span>
-                        <span class="stat-value" id="primeError">-</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Largest Prime ≤ N:</span>
-                        <span class="stat-value" id="largestPrime">-</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Prime Density:</span>
-                        <span class="stat-value" id="primeDensity">-</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Σ 1/p (primes ≤ N):</span>
-                        <span class="stat-value" id="primeRecipSum">-</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="stat-card">
                 <h3>Computational Details</h3>
                 <div id="computeStats">
                     <div class="stat-row">
@@ -1082,400 +1040,6 @@
             </div>
         </div>
         </div>
-        
-        <!-- Unit Circle Visualization -->
-        <div id="unitcircleTab" class="tab-content">
-            <div class="main-grid">
-                <div class="controls-panel">
-                    <div class="control-group">
-                        <h3>Canvas Size</h3>
-                        <label>Resolution</label>
-                        <select id="uc_resolution">
-                            <option value="1024">1K (1024px)</option>
-                            <option value="2048" selected>2K (2048px)</option>
-                            <option value="3840">4K (3840px)</option>
-                            <option value="7680">8K (7680px)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <h3>Unit Circle Parameters</h3>
-                        <label>Modulus m</label>
-                        <input type="number" id="uc_modulus" min="2" max="360" value="12">
-                        
-                        <label>Point Size</label>
-                        <input type="range" id="uc_pointSize" min="2" max="200" value="8">
-                        <div class="range-value" id="uc_pointSizeValue">8px</div>
-                        
-                        <label>Mapping Type</label>
-                        <select id="uc_mapping">
-                            <option value="standard">Standard (2πr/m)</option>
-                            <option value="reverse">Reverse</option>
-                            <option value="complement">Complement</option>
-                            <option value="farey">Farey</option>
-                        </select>
-                        
-                        <label>Color Scheme</label>
-                        <select id="uc_colorScheme">
-                            <option value="uniform">Uniform (All Coprime)</option>
-                            <option value="byResidue">By Residue</option>
-                            <option value="byAngle">By Angle</option>
-                            <option value="rainbow">Rainbow</option>
-                            <option value="spectrum">Spectrum</option>
-                        </select>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="uc_showAngles" checked>
-                            <label>Show Angle Labels</label>
-                        </div>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="uc_showGCDLabels">
-                            <label>Show GCD Labels</label>
-                        </div>
-                        
-                        <label>Label Format</label>
-                        <select id="uc_labelFormat">
-                            <option value="fraction">Fraction (r/m)</option>
-                            <option value="decimal">Decimal</option>
-                            <option value="angle">Angle (degrees)</option>
-                            <option value="residue">Residue Only</option>
-                        </select>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="uc_showConnections">
-                            <label>Show Connections</label>
-                        </div>
-                    </div>
-                    
-                    <button id="uc_generate">Generate Unit Circle</button>
-                    
-                    <div class="control-group">
-                        <h3>Export</h3>
-                        <div class="export-section">
-                            <button class="secondary" id="uc_exportPNG">PNG</button>
-                            <button class="secondary" id="uc_exportSVG">SVG</button>
-                            <button class="secondary" id="uc_exportCSV">CSV</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="canvas-container">
-                    <canvas id="uc_canvas" width="2048" height="2048"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Nested Rings Visualization -->
-        <div id="ringsTab" class="tab-content">
-            <div class="main-grid">
-                <div class="controls-panel">
-                    <div class="control-group">
-                        <h3>Canvas Size</h3>
-                        <label>Resolution</label>
-                        <select id="nr_resolution">
-                            <option value="1024">1K (1024px)</option>
-                            <option value="2048" selected>2K (2048px)</option>
-                            <option value="3840">4K (3840px)</option>
-                            <option value="7680">8K (7680px)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <h3>Ring Parameters</h3>
-                        <label>Number of Rings</label>
-                        <input type="range" id="nr_ringCount" min="5" max="200" value="20">
-                        <div class="range-value" id="nr_ringCountValue">20</div>
-                        
-                        <label>Ring Spacing</label>
-                        <input type="range" id="nr_spacing" min="10" max="200" value="40">
-                        <div class="range-value" id="nr_spacingValue">40</div>
-                        
-                        <label>Point Size</label>
-                        <input type="range" id="nr_pointSize" min="2" max="200" value="6">
-                        <div class="range-value" id="nr_pointSizeValue">6px</div>
-                        
-                        <label>Color Scheme</label>
-                        <select id="nr_colorScheme">
-                            <option value="byRing">Color by Ring</option>
-                            <option value="coprime">Coprime Only</option>
-                            <option value="rainbow">Rainbow</option>
-                            <option value="byGCD">Color by GCD</option>
-                            <option value="spectrum">Spectrum</option>
-                        </select>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="nr_showGCDLabels">
-                            <label>Show GCD Labels</label>
-                        </div>
-                        
-                        <label>Label Format</label>
-                        <select id="nr_labelFormat">
-                            <option value="gcd">GCD Value</option>
-                            <option value="fraction">Fraction (r/m)</option>
-                            <option value="modulus">Modulus m</option>
-                            <option value="residue">Residue r</option>
-                        </select>
-                        
-                        <label>Font Size</label>
-                        <input type="range" id="nr_fontSize" min="8" max="48" value="12">
-                        <div class="range-value" id="nr_fontSizeValue">12px</div>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="nr_showConnections">
-                            <label>Show Inter-Ring Connections</label>
-                        </div>
-                    </div>
-                    
-                    <button id="nr_generate">Generate Rings</button>
-                    
-                    <div class="control-group">
-                        <h3>Export</h3>
-                        <div class="export-section">
-                            <button class="secondary" id="nr_exportPNG">PNG</button>
-                            <button class="secondary" id="nr_exportSVG">SVG</button>
-                            <button class="secondary" id="nr_exportCSV">CSV</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="canvas-container">
-                    <canvas id="nr_canvas" width="2048" height="2048"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Coprime Pairs Grid Visualization -->
-        <div id="pairgridTab" class="tab-content">
-            <div class="main-grid">
-                <div class="controls-panel">
-                    <div class="control-group">
-                        <h3>Canvas Size</h3>
-                        <label>Resolution</label>
-                        <select id="pg_resolution">
-                            <option value="1024">1K (1024px)</option>
-                            <option value="2048" selected>2K (2048px)</option>
-                            <option value="3840">4K (3840px)</option>
-                            <option value="7680">8K (7680px)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <h3>Grid Parameters</h3>
-                        <label>Grid Size (N × N)</label>
-                        <input type="number" id="pg_gridSize" min="10" max="2000" value="100">
-                        
-                        <label>Pixel Size</label>
-                        <input type="range" id="pg_pixelSize" min="1" max="200" value="10">
-                        <div class="range-value" id="pg_pixelSizeValue">10px</div>
-                        
-                        <label>Brightness Boost</label>
-                        <input type="range" id="pg_brightness" min="50" max="255" value="150">
-                        <div class="range-value" id="pg_brightnessValue">150</div>
-                        
-                        <label>Color Mode</label>
-                        <select id="pg_colorMode">
-                            <option value="greenblue">Green/Blue</option>
-                            <option value="whitered">White/Red</option>
-                            <option value="spectrum">Spectrum by GCD</option>
-                            <option value="rainbow">Rainbow by GCD</option>
-                            <option value="heatmap">Heatmap</option>
-                        </select>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="pg_showGCDLabels">
-                            <label>Show GCD Labels</label>
-                        </div>
-                        
-                        <label>Label Format</label>
-                        <select id="pg_labelFormat">
-                            <option value="gcd">GCD Value</option>
-                            <option value="coordinates">Coordinates (a,b)</option>
-                            <option value="fraction">Fraction a/b</option>
-                            <option value="coprime">Coprime Status</option>
-                        </select>
-                        
-                        <label>Label Threshold (max labels)</label>
-                        <input type="range" id="pg_labelThreshold" min="10" max="500" value="100">
-                        <div class="range-value" id="pg_labelThresholdValue">100</div>
-                        
-                        <label>Font Size</label>
-                        <input type="range" id="pg_fontSize" min="6" max="48" value="10">
-                        <div class="range-value" id="pg_fontSizeValue">10px</div>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="pg_showStats" checked>
-                            <label>Show Density Statistics</label>
-                        </div>
-                    </div>
-                    
-                    <button id="pg_generate">Generate Pairs Grid</button>
-                    
-                    <div class="control-group">
-                        <h3>Export</h3>
-                        <div class="export-section">
-                            <button class="secondary" id="pg_exportPNG">PNG</button>
-                            <button class="secondary" id="pg_exportSVG">SVG</button>
-                            <button class="secondary" id="pg_exportCSV">CSV</button>
-                        </div>
-                    </div>
-                    
-                    <div id="pg_stats" class="stat-card" style="margin-top: 20px;">
-                        <h3>Density Statistics</h3>
-                        <div class="stat-row">
-                            <span class="stat-label">Coprime Density:</span>
-                            <span class="stat-value" id="pg_density">-</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Theoretical:</span>
-                            <span class="stat-value">0.607927</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Error:</span>
-                            <span class="stat-value" id="pg_error">-</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="canvas-container">
-                    <canvas id="pg_canvas" width="2048" height="2048"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Totient Ratio Chart Visualization -->
-        <div id="totientTab" class="tab-content">
-            <div class="main-grid">
-                <div class="controls-panel">
-                    <div class="control-group">
-                        <h3>Canvas Size</h3>
-                        <label>Resolution</label>
-                        <select id="tr_resolution">
-                            <option value="1024x768">1K (1024×768)</option>
-                            <option value="2048x1536" selected>2K (2048×1536)</option>
-                            <option value="3840x2160">4K (3840×2160)</option>
-                            <option value="7680x4320">8K (7680×4320)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <h3>Chart Parameters</h3>
-                        <label>Maximum Modulus</label>
-                        <input type="number" id="tr_maxMod" min="10" max="5000" value="100">
-                        
-                        <label>Point Size</label>
-                        <input type="range" id="tr_pointSize" min="1" max="200" value="4">
-                        <div class="range-value" id="tr_pointSizeValue">4px</div>
-                        
-                        <label>Color Scheme</label>
-                        <select id="tr_colorScheme">
-                            <option value="standard">Standard Blue</option>
-                            <option value="primeHighlight">Highlight Primes</option>
-                            <option value="byGCD">Color by GCD Pattern</option>
-                            <option value="rainbow">Rainbow</option>
-                            <option value="heatmap">Heatmap by Ratio</option>
-                        </select>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tr_showReference" checked>
-                            <label>Show 6/π² Reference Line</label>
-                        </div>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tr_showGCDLabels">
-                            <label>Show Point Labels</label>
-                        </div>
-                        
-                        <label>Label Format</label>
-                        <select id="tr_labelFormat">
-                            <option value="modulus">Modulus m</option>
-                            <option value="ratio">Ratio φ(m)/m</option>
-                            <option value="phi">φ(m) Value</option>
-                            <option value="both">m: φ(m)/m</option>
-                        </select>
-                        
-                        <label>Label Threshold (max labels)</label>
-                        <input type="range" id="tr_labelThreshold" min="10" max="500" value="50">
-                        <div class="range-value" id="tr_labelThresholdValue">50</div>
-                        
-                        <label>Font Size</label>
-                        <input type="range" id="tr_fontSize" min="6" max="48" value="11">
-                        <div class="range-value" id="tr_fontSizeValue">11px</div>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tr_highlightPrimes" checked>
-                            <label>Highlight Primes</label>
-                        </div>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tr_showFarey">
-                            <label>Show Farey Connections</label>
-                        </div>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tr_showAverage" checked>
-                            <label>Show Running Average</label>
-                        </div>
-                    </div>
-                    
-                    <button id="tr_generate">Generate Chart</button>
-                    
-                    <div class="control-group">
-                        <h3>Export</h3>
-                        <div class="export-section">
-                            <button class="secondary" id="tr_exportPNG">PNG</button>
-                            <button class="secondary" id="tr_exportSVG">SVG</button>
-                            <button class="secondary" id="tr_exportCSV">CSV</button>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card" style="margin-top: 20px;">
-                        <h3>Convergence Statistics</h3>
-                        <div class="stat-row">
-                            <span class="stat-label">Average φ(m)/m:</span>
-                            <span class="stat-value" id="tr_avgRatio">-</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Target (6/π²):</span>
-                            <span class="stat-value">0.607927</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">Convergence Error:</span>
-                            <span class="stat-value" id="tr_convError">-</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="canvas-container">
-                    <canvas id="tr_canvas" width="2048" height="1536"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div style="margin-top: 30px; padding: 20px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; text-align: center;">
-            <div style="color: #4fc3f7; font-size: 16px; font-weight: bold; margin-bottom: 15px;">About This Tool</div>
-            <div style="color: #b0b0b0; font-size: 12px; line-height: 1.8;">
-                <p style="margin-bottom: 10px;">
-                    <strong style="color: #90caf9;">Coprime Lattice & Riemann Hypothesis Explorer</strong> visualizes primitive lattice vectors 
-                    and their deep connections to the Riemann zeta function, Gaussian integers, and the distribution of primes.
-                </p>
-                <p style="margin-bottom: 10px;">
-                    Built using HTML5 Canvas with pure JavaScript. Implements efficient GCD computation via Euclidean algorithm, 
-                    Möbius function evaluation, and real-time statistical analysis of coprime density convergence to 6/π² ≈ 0.607927.
-                </p>
-                <p style="margin-bottom: 15px;">
-                    <strong style="color: #90caf9;">Key Features:</strong> Zoom & pan, point inspection with polar/modular properties, 
-                    disc analysis for RH error bounds, multiple export formats (PNG with legend, SVG, CSV, JSON), 
-                    customizable labeling and color schemes.
-                </p>
-                <div style="padding-top: 15px; border-top: 1px solid #333;">
-                    <strong style="color: #4fc3f7;">Author:</strong> Wessen Getachew 
-                    (<a href="https://twitter.com/7dview" target="_blank" style="color: #4fc3f7; text-decoration: none;">@7dview</a>) | 
-                    <strong style="color: #4fc3f7;">Theme:</strong> Classical analytic number theory with modern interactive visualization
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -1497,14 +1061,6 @@
                     document.getElementById('introTab').classList.add('active');
                 } else if (targetTab === 'explorer') {
                     document.getElementById('explorerTab').classList.add('active');
-                } else if (targetTab === 'unitcircle') {
-                    document.getElementById('unitcircleTab').classList.add('active');
-                } else if (targetTab === 'rings') {
-                    document.getElementById('ringsTab').classList.add('active');
-                } else if (targetTab === 'pairgrid') {
-                    document.getElementById('pairgridTab').classList.add('active');
-                } else if (targetTab === 'totient') {
-                    document.getElementById('totientTab').classList.add('active');
                 }
             });
         });
@@ -1563,56 +1119,6 @@
             if (temp > 1) factors.push(temp);
             
             return factors.length % 2 === 0 ? 1 : -1;
-        }
-        
-        // Prime checking function
-        function isPrimeCheck(n) {
-            if (n < 2) return false;
-            if (n === 2) return true;
-            if (n % 2 === 0) return false;
-            for (let i = 3; i * i <= n; i += 2) {
-                if (n % i === 0) return false;
-            }
-            return true;
-        }
-        
-        // Sieve of Eratosthenes for efficient prime counting
-        function sieveOfEratosthenes(n) {
-            if (n < 2) return [];
-            const isPrime = new Array(n + 1).fill(true);
-            isPrime[0] = isPrime[1] = false;
-            
-            for (let i = 2; i * i <= n; i++) {
-                if (isPrime[i]) {
-                    for (let j = i * i; j <= n; j += i) {
-                        isPrime[j] = false;
-                    }
-                }
-            }
-            
-            const primes = [];
-            for (let i = 2; i <= n; i++) {
-                if (isPrime[i]) primes.push(i);
-            }
-            return primes;
-        }
-        
-        // Logarithmic integral approximation
-        function logarithmicIntegral(n) {
-            if (n < 2) return 0;
-            
-            // Li(n) ≈ n / ln(n) * (1 + 1/ln(n) + 2!/ln²(n) + 3!/ln³(n) + ...)
-            // Using first few terms for approximation
-            const lnn = Math.log(n);
-            let sum = 0;
-            let term = 1;
-            
-            for (let k = 0; k < 5; k++) {
-                sum += term;
-                term *= (k + 1) / lnn;
-            }
-            
-            return (n / lnn) * sum;
         }
         
         // Color schemes
@@ -1782,24 +1288,6 @@
             let mobiusOverN = 0;
             let mobiusOverN2 = 0;
             
-            // Prime counting
-            let primes = [];
-            let primeSet = new Set();
-            
-            // Use sieve if N is reasonable size
-            if (N <= 10000) {
-                primes = sieveOfEratosthenes(N);
-                primeSet = new Set(primes);
-            } else {
-                // For large N, estimate primes in visible range
-                for (let i = 2; i <= Math.min(N, 1000); i++) {
-                    if (isPrimeCheck(i)) {
-                        primes.push(i);
-                        primeSet.add(i);
-                    }
-                }
-            }
-            
             const R = N * circleRadiusPct / 2;
             let discTotal = 0;
             let discCoprime = 0;
@@ -1917,16 +1405,6 @@
             const endTime = performance.now();
             const genTime = ((endTime - startTime) / 1000).toFixed(2);
             
-            // Calculate prime statistics
-            const primeCount = primes.length;
-            const primeApprox = N / Math.log(N);
-            const primeRatio = primeCount / primeApprox;
-            const primeLogInt = logarithmicIntegral(N);
-            const primeError = primeCount - primeLogInt;
-            const largestPrime = primes.length > 0 ? primes[primes.length - 1] : 0;
-            const primeDensity = primeCount / N;
-            const primeRecipSum = primes.reduce((sum, p) => sum + 1/p, 0);
-            
             // Calculate statistics
             const totalPoints = N * N;
             const coprimeDensity = coprimeCount / totalPoints;
@@ -1957,15 +1435,7 @@
                 genTime,
                 resolution,
                 pointSize,
-                colorScheme: colorSchemeName,
-                primeCount,
-                primeApprox,
-                primeRatio,
-                primeLogInt,
-                primeError,
-                largestPrime,
-                primeDensity,
-                primeRecipSum
+                colorScheme: colorSchemeName
             };
             
             updateStatistics();
@@ -2304,16 +1774,6 @@
             document.getElementById('mobiusSquared').textContent = s.mobiusOverN2.toFixed(6);
             document.getElementById('gcdCount').textContent = Object.keys(s.gcdDistribution).length;
             
-            // Prime stats
-            document.getElementById('primeCount').textContent = s.primeCount.toLocaleString();
-            document.getElementById('primeApprox').textContent = s.primeApprox.toFixed(2);
-            document.getElementById('primeRatio').textContent = s.primeRatio.toFixed(6);
-            document.getElementById('primeLogInt').textContent = s.primeLogInt.toFixed(2);
-            document.getElementById('primeError').textContent = s.primeError.toFixed(2);
-            document.getElementById('largestPrime').textContent = s.largestPrime.toLocaleString();
-            document.getElementById('primeDensity').textContent = s.primeDensity.toFixed(6);
-            document.getElementById('primeRecipSum').textContent = s.primeRecipSum.toFixed(6);
-            
             // Compute stats
             document.getElementById('dimensions').textContent = `${s.N} × ${s.N}`;
             document.getElementById('canvasSize').textContent = `${s.resolution} × ${s.resolution}`;
@@ -2517,4 +1977,4 @@
         };
     </script>
 </body>
-                            </html>
+    </html>
