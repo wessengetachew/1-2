@@ -1089,8 +1089,13 @@
                     </select>
                     
                     <label>Label Threshold (max points to label)</label>
-                    <input type="range" id="labelThreshold" min="10" max="500" value="100" step="10" disabled>
+                    <input type="range" id="labelThreshold" min="10" max="2000" value="100" step="10" disabled>
                     <div class="range-value" id="labelThresholdValue">100</div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="labelAllVisible" disabled>
+                        <label title="Label all visible points (ignore threshold)">Label All Visible Points</label>
+                    </div>
                     
                     <label>Font Size</label>
                     <input type="range" id="labelFontSize" min="8" max="24" value="12" step="1" disabled>
@@ -1643,6 +1648,7 @@
         const labelFontSizeSlider = document.getElementById('labelFontSize');
         const labelFontSizeValue = document.getElementById('labelFontSizeValue');
         const labelCoprimeOnlyCheck = document.getElementById('labelCoprimeOnly');
+        const labelAllVisibleCheck = document.getElementById('labelAllVisible');
         
         // Zoom controls
         const zoomLevelSlider = document.getElementById('zoomLevel');
@@ -1848,6 +1854,7 @@
             labelThresholdSlider.disabled = !enabled;
             labelFontSizeSlider.disabled = !enabled;
             labelCoprimeOnlyCheck.disabled = !enabled;
+            labelAllVisibleCheck.disabled = !enabled;
             if (baseCanvas) redrawWithZoomAndLabels();
         };
         
@@ -1860,6 +1867,10 @@
         };
         
         labelCoprimeOnlyCheck.onchange = () => {
+            if (baseCanvas) redrawWithZoomAndLabels();
+        };
+        
+        labelAllVisibleCheck.onchange = () => {
             if (baseCanvas) redrawWithZoomAndLabels();
         };
         
@@ -2559,6 +2570,7 @@
             const threshold = parseInt(labelThresholdSlider.value);
             const fontSize = parseInt(labelFontSizeSlider.value);
             const coprimeOnly = labelCoprimeOnlyCheck.checked;
+            const labelAll = labelAllVisibleCheck.checked;
             
             if (!latticeData || latticeData.length === 0) return;
             
@@ -2591,11 +2603,16 @@
                 }
             }
             
-            // Limit to threshold
-            if (visiblePoints.length > threshold) {
-                // Sample evenly or prioritize coprime points
+            // Limit to threshold (unless labelAll is checked)
+            if (!labelAll && visiblePoints.length > threshold) {
+                // Sample evenly across the visible region
                 const step = Math.ceil(visiblePoints.length / threshold);
                 visiblePoints = visiblePoints.filter((_, idx) => idx % step === 0);
+            }
+            
+            // Show warning if many points
+            if (visiblePoints.length > 1000 && labelAll) {
+                console.warn(`Labeling ${visiblePoints.length} points - this may be slow`);
             }
             
             // Draw labels
@@ -3972,9 +3989,10 @@ NOTE: Full comprehensive data available in CSV/JSON exports
             labelThresholdSlider.disabled = !showLabelsCheck.checked;
             labelFontSizeSlider.disabled = !showLabelsCheck.checked;
             labelCoprimeOnlyCheck.disabled = !showLabelsCheck.checked;
+            labelAllVisibleCheck.disabled = !showLabelsCheck.checked;
             
             setTimeout(generateVisualization, 500);
         };
     </script>
 </body>
-    </html>
+                    </html>
